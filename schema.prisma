@@ -1,0 +1,233 @@
+// =============================================================================
+// FinanceAI — schema.prisma
+// PostgreSQL 16 + Prisma 5
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Plan {
+  free
+  pro
+}
+
+enum ImportStatus {
+  pending
+  processing
+  done
+  error
+}
+
+enum TransactionType {
+  income
+  expense
+}
+
+enum CategoryType {
+  income
+  expense
+  both
+}
+
+enum MatchType {
+  exact
+  contains
+  starts_with
+  regex
+}
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String   @unique @db.VarChar(255)
+  password_hash  String   @db.VarChar(255)
+  name           String   @db.VarChar(255)
+  plan           Plan     @default(free)
+  ai_provider    String?  @db.VarChar(100)
+  ai_api_key_enc String?  @db.Text
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  imports      Import[]
+  transactions Transaction[]
+  categories   Category[]
+  ai_rules     AiRule[]
+
+  @@map("users")
+
+  // -------------------------------------------------------------------------
+  // INDEX: email já é coberto pelo @unique acima (B-tree automático).
+  // Sem índices adicionais — tabela de cardinalidade baixa, lookup sempre
+  // por PK ou email.
+  // -------------------------------------------------------------------------
+}
+
+model Import {
+  id             String       @id @default(uuid()) @db.Uuid
+  user_id        String       @db.Uuid
+  filename       String       @db.VarChar(255)
+  storage_path   String       @db.VarChar(500)
+  institution    String?      @db.VarChar(255)
+  status         ImportStatus @default(pending)
+  total_rows     Int?
+  processed_rows Int?         @default(0)
+  error_log      Json?
+  column_mapping Json?
+  month_ref      DateTime?    @db.Date
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("imports")
+
+  // -------------------------------------------------------------------------
+  // INDEX 1: (user_id, created_at DESC)
+  //   Consultas mais comuns: "listar imports do usuário X, ordenados por data".
+  //   created_at DESC no índice evita sort em memória.
+  // INDEX 2: (user_id, status)
+  //   Worker de processamento faz polling: WHERE user_id = ? AND status = 'pending'.
+  //   Índice composto evita seq scan na tabela inteira.
+  // INDEX 3: (user_id, month_ref)
+  //   Filtro por competência mensal nas telas de conciliação.
+  // -------------------------------------------------------------------------
+  @@index([user_id, created_at(sort: Desc)], name: "idx_imports_user_created")
+  @@index([user_id, status], name: "idx_imports_user_status")
+  @@index([user_id, month_ref], name: "idx_imports_user_month")
+}
+
+model Transaction {
+  id                   String          @id @default(uuid()) @db.Uuid
+  user_id              String          @db.Uuid
+  import_id            String?         @db.Uuid
+  date                 DateTime        @db.Date
+  description          String          @db.Text
+  description_normalized String?       @db.Text
+  amount               Decimal         @db.Decimal(15, 2)
+  type                 TransactionType
+  category_id          String?         @db.Uuid
+  ai_category_id       String?         @db.Uuid
+  ai_confidence        Float?
+  ai_model             String?         @db.VarChar(100)
+  is_ai_confirmed      Boolean         @default(false)
+  is_recurring         Boolean         @default(false)
+  tags                 String[]        @db.Text
+  notes                String?         @db.Text
+  hash                 String          @db.VarChar(64)
+  created_at           DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime        @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  import      Import?   @relation(fields: [import_id], references: [id], onDelete: SetNull)
+  category    Category? @relation("ManualCategory", fields: [category_id], references: [id], onDelete: SetNull)
+  ai_category Category? @relation("AiCategory", fields: [ai_category_id], references: [id], onDelete: SetNull)
+
+  @@map("transactions")
+
+  // -------------------------------------------------------------------------
+  // INDEX 1: (user_id, date DESC)
+  //   Query raiz do extrato: "todas as transações do usuário, ordenadas por data".
+  //   Cobre 90 % das leituras da aplicação. DESC no índice elimina sort.
+  // INDEX 2: (user_id, date DESC, type)
+  //   Filtro de receitas/despesas por período — dashboard e relatórios mensais.
+  // INDEX 3: (user_id, category_id, date DESC)
+  //   Drill-down por categoria: "gastos com Alimentação em maio/2026".
+  // INDEX 4: (user_id, hash) UNIQUE
+  //   Deduplicação na importação: antes de inserir, checa se o hash já existe
+  //   para esse usuário. UNIQUE garante integridade + cria índice automaticamente.
+  // INDEX 5: (user_id, is_ai_confirmed, ai_confidence)
+  //   Fila de revisão manual: transações com IA não confirmada e baixa confiança.
+  //   Partial index seria ideal aqui; índice composto é o equivalente Prisma.
+  // INDEX 6: (import_id)
+  //   JOIN / lookup ao listar transações de um import específico.
+  // INDEX 7: GIN em tags
+  //   Array de tags precisa de GIN para @> (contains) ser eficiente.
+  //   Declarado via raw SQL na migration (não suportado nativamente pelo Prisma).
+  // -------------------------------------------------------------------------
+  @@unique([user_id, hash], name: "uq_transaction_user_hash")
+  @@index([user_id, date(sort: Desc)], name: "idx_tx_user_date")
+  @@index([user_id, date(sort: Desc), type], name: "idx_tx_user_date_type")
+  @@index([user_id, category_id, date(sort: Desc)], name: "idx_tx_user_category_date")
+  @@index([user_id, is_ai_confirmed, ai_confidence], name: "idx_tx_ai_review")
+  @@index([import_id], name: "idx_tx_import")
+}
+
+model Category {
+  id         String       @id @default(uuid()) @db.Uuid
+  user_id    String?      @db.Uuid  // NULL = categoria global do sistema
+  name       String       @db.VarChar(100)
+  icon       String?      @db.VarChar(50)
+  color      String?      @db.VarChar(7)  // hex: #RRGGBB
+  type       CategoryType @default(both)
+  parent_id  String?      @db.Uuid
+  is_system  Boolean      @default(false)
+  sort_order Int          @default(0)
+
+  // Relations
+  user   User?      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parent Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+
+  children              Category[]    @relation("CategoryHierarchy")
+  transactions_manual   Transaction[] @relation("ManualCategory")
+  transactions_ai       Transaction[] @relation("AiCategory")
+  ai_rules              AiRule[]
+
+  @@map("categories")
+
+  // -------------------------------------------------------------------------
+  // INDEX 1: (user_id, type, sort_order)
+  //   Listar categorias do usuário + globais (user_id IS NULL) filtradas por
+  //   tipo e na ordem correta de exibição. Query típica:
+  //   WHERE (user_id = ? OR user_id IS NULL) AND type IN ('expense','both')
+  //   ORDER BY sort_order
+  // INDEX 2: (is_system)
+  //   Seed e operações administrativas buscam as categorias globais do sistema.
+  //   Tabela pequena, mas índice parcial seria ideal em produção.
+  // -------------------------------------------------------------------------
+  @@index([user_id, type, sort_order], name: "idx_cat_user_type_order")
+  @@index([is_system], name: "idx_cat_system")
+}
+
+model AiRule {
+  id            String    @id @default(uuid()) @db.Uuid
+  user_id       String    @db.Uuid
+  pattern       String    @db.Text
+  match_type    MatchType
+  category_id   String    @db.Uuid
+  priority      Int       @default(0)
+  times_applied Int       @default(0)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@map("ai_rules")
+
+  // -------------------------------------------------------------------------
+  // INDEX 1: (user_id, priority DESC)
+  //   Motor de regras itera todas as regras do usuário ordenadas por prioridade
+  //   a cada categorização. DESC no índice retorna a de maior prioridade primeiro.
+  // INDEX 2: (user_id, match_type)
+  //   Otimiza quando o motor pré-filtra por tipo de matching (ex: só 'regex')
+  //   antes de avaliar o padrão.
+  // -------------------------------------------------------------------------
+  @@index([user_id, priority(sort: Desc)], name: "idx_rules_user_priority")
+  @@index([user_id, match_type], name: "idx_rules_user_matchtype")
+}

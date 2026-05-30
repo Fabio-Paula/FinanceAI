@@ -1,0 +1,298 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   FinanceAI — Global Styles
+   Stack: Tailwind CSS v3 + shadcn/ui (style: default, baseColor: slate)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── JetBrains Mono font imports ──────────────────────────────────────────── */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+/* ── CSS custom properties ─────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* ── Brand ── */
+    --brand-primary:  215 62% 25%;   /* #1E3A5F */
+    --brand-accent:   210 59% 44%;   /* #2E75B6 */
+
+    /* ── shadcn/ui semantic tokens (light) ── */
+    --background:          0 0% 100%;
+    --foreground:          222 47% 11%;
+
+    --card:                0 0% 100%;
+    --card-foreground:     222 47% 11%;
+
+    --popover:             0 0% 100%;
+    --popover-foreground:  222 47% 11%;
+
+    --primary:             215 62% 25%;   /* brand-primary */
+    --primary-foreground:  210 40% 98%;
+
+    --secondary:           215 28% 93%;
+    --secondary-foreground:215 62% 25%;
+
+    --muted:               215 20% 95%;
+    --muted-foreground:    215 16% 47%;
+
+    --accent:              210 59% 44%;   /* brand-accent */
+    --accent-foreground:   0 0% 100%;
+
+    --destructive:         0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success:             142 71% 45%;
+    --success-foreground:  0 0% 100%;
+
+    --border:              214 32% 91%;
+    --input:               214 32% 91%;
+    --ring:                215 62% 25%;
+
+    --radius: 0.5rem;
+
+    /* ── Chart tokens ── */
+    --chart-1: 215 62% 25%;
+    --chart-2: 210 59% 44%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 72% 51%;
+
+    /* ── Font variables ── */
+    --font-sans: "JetBrains Mono", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+
+    /* ────────────────────────────────────────────────────────────────────────
+       Category colors — LIGHT MODE
+       Each entry: bg (background), fg (text), muted (10% opacity bg)
+       ──────────────────────────────────────────────────────────────────────── */
+    --category-mercado:       #2D7D46;   /* green */
+    --category-mercado-fg:    #ffffff;
+    --category-mercado-muted: #2d7d4619;
+
+    --category-restaurante:   #C2410C;   /* orange-red */
+    --category-restaurante-fg:    #ffffff;
+    --category-restaurante-muted: #c2410c19;
+
+    --category-transporte:    #1D4ED8;   /* blue */
+    --category-transporte-fg: #ffffff;
+    --category-transporte-muted: #1d4ed819;
+
+    --category-streaming:     #7C3AED;   /* violet */
+    --category-streaming-fg:  #ffffff;
+    --category-streaming-muted: #7c3aed19;
+
+    --category-saude:         #0891B2;   /* cyan */
+    --category-saude-fg:      #ffffff;
+    --category-saude-muted:   #0891b219;
+
+    --category-farmacia:      #0D9488;   /* teal */
+    --category-farmacia-fg:   #ffffff;
+    --category-farmacia-muted:#0d948819;
+
+    --category-lazer:         #DB2777;   /* pink */
+    --category-lazer-fg:      #ffffff;
+    --category-lazer-muted:   #db277719;
+
+    --category-assinaturas:   #9333EA;   /* purple */
+    --category-assinaturas-fg:#ffffff;
+    --category-assinaturas-muted: #9333ea19;
+
+    --category-combustivel:   #D97706;   /* amber */
+    --category-combustivel-fg:#ffffff;
+    --category-combustivel-muted: #d9770619;
+
+    --category-educacao:      #2563EB;   /* indigo-blue */
+    --category-educacao-fg:   #ffffff;
+    --category-educacao-muted:#2563eb19;
+
+    --category-salario:       #16A34A;   /* emerald */
+    --category-salario-fg:    #ffffff;
+    --category-salario-muted: #16a34a19;
+
+    --category-investimentos:  #1E3A5F;  /* brand-primary */
+    --category-investimentos-fg: #ffffff;
+    --category-investimentos-muted: #1e3a5f19;
+
+    --category-outros:        #64748B;   /* slate */
+    --category-outros-fg:     #ffffff;
+    --category-outros-muted:  #64748b19;
+  }
+
+  /* ── Dark mode overrides ─────────────────────────────────────────────────── */
+  .dark {
+    --background:          0 0% 9%;
+    --foreground:          0 0% 95%;
+
+    --card:                0 0% 12%;
+    --card-foreground:     0 0% 95%;
+
+    --popover:             0 0% 12%;
+    --popover-foreground:  0 0% 95%;
+
+    --primary:             210 59% 55%;   /* lighter for contrast on dark */
+    --primary-foreground:  0 0% 9%;
+
+    --secondary:           0 0% 17%;
+    --secondary-foreground:0 0% 95%;
+
+    --muted:               0 0% 17%;
+    --muted-foreground:    0 0% 53%;
+
+    --accent:              210 59% 55%;
+    --accent-foreground:   0 0% 9%;
+
+    --destructive:         0 63% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success:             142 71% 40%;
+    --success-foreground:  0 0% 100%;
+
+    --border:              0 0% 20%;
+    --input:               0 0% 20%;
+    --ring:                210 59% 55%;
+
+    /* ── Chart tokens (dark) ── */
+    --chart-1: 210 59% 55%;
+    --chart-2: 142 71% 40%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 0 63% 55%;
+
+    /* ────────────────────────────────────────────────────────────────────────
+       Category colors — DARK MODE
+       Slightly lighter / more saturated to pop on dark backgrounds
+       ──────────────────────────────────────────────────────────────────────── */
+    --category-mercado:       #34D469;
+    --category-mercado-fg:    #052e16;
+    --category-mercado-muted: #34d46926;
+
+    --category-restaurante:   #FB6F3B;
+    --category-restaurante-fg:    #431407;
+    --category-restaurante-muted: #fb6f3b26;
+
+    --category-transporte:    #60A5FA;
+    --category-transporte-fg: #1e3a8a;
+    --category-transporte-muted: #60a5fa26;
+
+    --category-streaming:     #A78BFA;
+    --category-streaming-fg:  #2e1065;
+    --category-streaming-muted: #a78bfa26;
+
+    --category-saude:         #22D3EE;
+    --category-saude-fg:      #164e63;
+    --category-saude-muted:   #22d3ee26;
+
+    --category-farmacia:      #2DD4BF;
+    --category-farmacia-fg:   #134e4a;
+    --category-farmacia-muted:#2dd4bf26;
+
+    --category-lazer:         #F472B6;
+    --category-lazer-fg:      #500724;
+    --category-lazer-muted:   #f472b626;
+
+    --category-assinaturas:   #C084FC;
+    --category-assinaturas-fg:#3b0764;
+    --category-assinaturas-muted: #c084fc26;
+
+    --category-combustivel:   #FCD34D;
+    --category-combustivel-fg:#451a03;
+    --category-combustivel-muted: #fcd34d26;
+
+    --category-educacao:      #93C5FD;
+    --category-educacao-fg:   #1e3a8a;
+    --category-educacao-muted:#93c5fd26;
+
+    --category-salario:       #4ADE80;
+    --category-salario-fg:    #052e16;
+    --category-salario-muted: #4ade8026;
+
+    --category-investimentos:  #60A5FA;
+    --category-investimentos-fg: #1e3a8a;
+    --category-investimentos-muted: #60a5fa26;
+
+    --category-outros:        #94A3B8;
+    --category-outros-fg:     #1e293b;
+    --category-outros-muted:  #94a3b826;
+  }
+
+  /* ── Base resets ─────────────────────────────────────────────────────────── */
+  * {
+    @apply border-border;
+  }
+
+  /* ── Scrollbar — light mode ──────────────────────────────────────────────── */
+  :root {
+    scrollbar-color: hsl(214 32% 78%) hsl(215 20% 95%);
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(215 20% 95%);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(214 32% 78%);
+    border-radius: 9999px;
+    border: 2px solid hsl(215 20% 95%);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(215 16% 57%);
+  }
+
+  /* ── Scrollbar — dark mode ───────────────────────────────────────────────── */
+  .dark {
+    scrollbar-color: hsl(0 0% 30%) hsl(0 0% 12%);
+    scrollbar-width: thin;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: hsl(0 0% 12%);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 30%);
+    border-radius: 9999px;
+    border: 2px solid hsl(0 0% 12%);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(0 0% 45%);
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Monetary values always use mono font */
+  [data-currency],
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
