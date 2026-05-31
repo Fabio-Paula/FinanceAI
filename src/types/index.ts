@@ -84,6 +84,33 @@ export interface AiRule {
   category?: Category
 }
 
+export interface RecurringItem {
+  id: string
+  user_id: string
+  description: string
+  type: TransactionType
+  category_id?: string | null
+  day_of_month?: number | null
+  is_active: boolean
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  entries?: RecurringEntry[]
+}
+
+export interface RecurringEntry {
+  id: string
+  item_id: string
+  user_id: string
+  month_ref: string
+  amount: string
+  is_paid: boolean
+  paid_date?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
 // ── API responses ─────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T> {

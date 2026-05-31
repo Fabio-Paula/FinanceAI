@@ -1,19 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import {
   AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Info } from 'lucide-react'
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Info, Repeat2 } from 'lucide-react'
 import { TRANSACTIONS, MONTHLY_EVOLUTION, CATEGORY_SUMMARY, INSIGHTS } from '@/lib/mock-data'
 import { Currency } from '@/components/ui/currency'
 import { CategoryBadge } from '@/components/ui/category-badge'
 import { cn } from '@/lib/utils'
+import { apiGet } from '@/lib/api'
+import { useMonth } from '@/lib/month-context'
+import type { RecurringItem, RecurringEntry } from '@/types'
 
 export const Route = createFileRoute('/_app/dashboard')({ component: DashboardPage })
 
-function KpiCard({ label, value, sub, trend, trendUp }: {
+function KpiCard({ label, value, sub, trend, trendUp, recurringNote }: {
   label: string; value: number; sub: string; trend: string; trendUp: boolean
+  recurringNote?: string
 }) {
   return (
     <div className="rounded-lg border border-border bg-card p-5 space-y-3">
@@ -26,6 +30,12 @@ function KpiCard({ label, value, sub, trend, trendUp }: {
         <span className={trendUp ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>{trend}</span>
         <span>{sub}</span>
       </div>
+      {recurringNote && (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-2">
+          <Repeat2 className="h-3 w-3 shrink-0" />
+          <span>{recurringNote}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -68,18 +78,42 @@ function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ n
   )
 }
 
+type RecurringWithEntry = RecurringItem & { entries: RecurringEntry[] }
+
+const BRL = (v: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(v))
+
 export function DashboardPage() {
+  const { monthKey, monthLabel } = useMonth()
+
   const income  = useMemo(() => TRANSACTIONS.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [])
   const expense = useMemo(() => TRANSACTIONS.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [])
-  const balance = income + expense
   const pendingReview = TRANSACTIONS.filter(t => !t.isConfirmed).length
+
+  const [recItems, setRecItems] = useState<RecurringWithEntry[]>([])
+
+  useEffect(() => {
+    apiGet<{ data: RecurringWithEntry[] }>(`/api/recurrents?month=${monthKey}`)
+      .then(r => setRecItems(r.data))
+      .catch(() => { /* API unavailable or migration not yet run */ })
+  }, [monthKey])
+
+  const recIncome  = recItems.filter(i => i.type === 'income')
+    .reduce((s, i) => s + (i.entries[0] ? parseFloat(i.entries[0].amount) : 0), 0)
+  const recExpense = recItems.filter(i => i.type === 'expense')
+    .reduce((s, i) => s + (i.entries[0] ? parseFloat(i.entries[0].amount) : 0), 0)
+
+  // expense is negative in mock data; recurring amounts are positive
+  const totalIncome  = income  + recIncome
+  const totalExpense = expense - recExpense
+  const totalBalance = totalIncome + totalExpense
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Maio 2026</p>
+          <p className="text-sm text-muted-foreground mt-0.5 capitalize">{monthLabel}</p>
         </div>
         {pendingReview > 0 && (
           <span className="inline-flex items-center gap-1.5 text-xs bg-destructive/10 text-destructive border border-destructive/20 rounded-full px-3 py-1">
@@ -91,9 +125,26 @@ export function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Saldo do Mês"  value={balance} sub="vs. abril" trend="+8.2%" trendUp={true} />
-        <KpiCard label="Receitas"      value={income}  sub="vs. abril" trend="0%"    trendUp={true} />
-        <KpiCard label="Despesas"      value={expense} sub="vs. abril" trend="+4.1%" trendUp={false} />
+        <KpiCard
+          label="Saldo do Mês"
+          value={totalBalance}
+          sub="vs. abril" trend="+8.2%" trendUp={true}
+          recurringNote={recIncome > 0 || recExpense > 0
+            ? `${BRL(recIncome - recExpense)} em recorrentes`
+            : undefined}
+        />
+        <KpiCard
+          label="Receitas"
+          value={totalIncome}
+          sub="vs. abril" trend="0%" trendUp={true}
+          recurringNote={recIncome > 0 ? `${BRL(recIncome)} recorrentes` : undefined}
+        />
+        <KpiCard
+          label="Despesas"
+          value={totalExpense}
+          sub="vs. abril" trend="+4.1%" trendUp={false}
+          recurringNote={recExpense > 0 ? `${BRL(recExpense)} recorrentes` : undefined}
+        />
         <div className="rounded-lg border border-border bg-card p-5 space-y-3">
           <p className="text-sm text-muted-foreground">Para Revisar</p>
           <p className="text-2xl font-mono font-semibold text-foreground">{pendingReview}</p>
