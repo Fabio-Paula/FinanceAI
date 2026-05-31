@@ -37,26 +37,26 @@
     --brand-accent:   210 59% 44%;   /* #2E75B6 */
 
     /* ── shadcn/ui semantic tokens (light) ── */
-    --background:          0 0% 100%;
-    --foreground:          222 47% 11%;
+    --background:          35 100% 99%;   /* #FFFCF6 - Marfim quente */
+    --foreground:          25 20% 42%;    /* #6D5A45 - Café suave */
 
-    --card:                0 0% 100%;
-    --card-foreground:     222 47% 11%;
+    --card:                0 0% 100%;     /* #FFFFFF - Branco suave */
+    --card-foreground:     25 20% 42%;    /* #6D5A45 - Café suave */
 
-    --popover:             0 0% 100%;
-    --popover-foreground:  222 47% 11%;
+    --popover:             0 0% 100%;     /* #FFFFFF - Branco suave */
+    --popover-foreground:  25 20% 42%;    /* #6D5A45 - Café suave */
 
-    --primary:             215 62% 25%;   /* brand-primary */
-    --primary-foreground:  210 40% 98%;
+    --primary:             38 65% 55%;    /* #D9A441 - Amarelo queimado */
+    --primary-foreground:  0 0% 100%;
 
-    --secondary:           215 28% 93%;
-    --secondary-foreground:215 62% 25%;
+    --secondary:           35 92% 93%;    /* #FDF4E3 - Creme dourado */
+    --secondary-foreground:25 20% 42%;    /* #6D5A45 - Café suave */
 
-    --muted:               215 20% 95%;
-    --muted-foreground:    215 16% 47%;
+    --muted:               35 80% 88%;    /* #F7E8CC - Areia tostada clara */
+    --muted-foreground:    25 20% 58%;    /* #9C8467 - Bronze claro */
 
-    --accent:              210 59% 44%;   /* brand-accent */
-    --accent-foreground:   0 0% 100%;
+    --accent:              15 75% 68%;    /* #E78F6B - Mel dourado */
+    --accent-foreground:   25 20% 42%;    /* #6D5A45 - Café suave */
 
     --destructive:         0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -64,9 +64,9 @@
     --success:             142 71% 45%;
     --success-foreground:  0 0% 100%;
 
-    --border:              214 32% 91%;
-    --input:               214 32% 91%;
-    --ring:                215 62% 25%;
+    --border:              35 20% 94%;    /* Bege muito claro - quase imperceptível */
+    --input:               35 20% 94%;    /* Bege muito claro - quase imperceptível */
+    --ring:                38 65% 55%;    /* #D9A441 - Amarelo queimado */
 
     --radius: 0.5rem;
 

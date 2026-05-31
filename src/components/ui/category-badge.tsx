@@ -137,16 +137,17 @@ export function CategoryBadge({
   const showCheck   = confidence !== undefined && confidence >= 0.95;
 
   return (
-    <span
+    <div
       data-category={category}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full font-medium leading-none",
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm",
+        "inline-flex items-center gap-2 rounded-md font-semibold leading-none border",
+        size === "sm" ? "px-2 py-1 text-xs" : "px-3 py-2 text-sm",
         className,
       )}
       style={{
-        backgroundColor: colors.bg,
-        color:           colors.fg,
+        backgroundColor: colors.muted,
+        color:           `color-mix(in srgb, ${colors.bg} 70%, var(--tw-color-foreground, #ccc))`,
+        borderColor:     `color-mix(in srgb, ${colors.bg} 30%, transparent)`,
       }}
     >
       {showWarning && (
@@ -162,6 +163,6 @@ export function CategoryBadge({
         />
       )}
       {category}
-    </span>
+    </div>
   );
 }

@@ -106,15 +106,15 @@ export function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-lg border border-border bg-card overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-5 pt-5 pb-4">
+        <div className="lg:col-span-2 rounded-lg border border-border bg-card overflow-hidden flex flex-col min-h-[360px] pl-2 pr-5 pb-5">
+          <div className="flex items-center justify-between pt-5 pb-5">
             <h2 className="text-sm font-semibold text-foreground">Evolução Mensal</h2>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block bg-[hsl(var(--success))]" /> Receita</span>
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block bg-[hsl(var(--destructive))]" /> Despesa</span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={MONTHLY_EVOLUTION} margin={{ top: 4, right: 12, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="gIncome" x1="0" y1="0" x2="0" y2="1">
