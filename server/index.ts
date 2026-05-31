@@ -9,6 +9,7 @@ import { transactionRoutes } from './routes/transactions.js'
 import { categoryRoutes } from './routes/categories.js'
 import { importRoutes } from './routes/imports.js'
 import { dashboardRoutes } from './routes/dashboard.js'
+import { recurringRoutes } from './routes/recurrents.js'
 
 const app = new Hono()
 
@@ -31,6 +32,7 @@ app.route('/api/transactions', transactionRoutes)
 app.route('/api/categories', categoryRoutes)
 app.route('/api/imports', importRoutes)
 app.route('/api/dashboard', dashboardRoutes)
+app.route('/api/recurrents', recurringRoutes)
 
 // ── 404 ──────────────────────────────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Rota não encontrada' }, 404))

@@ -1,0 +1,26 @@
+{
+  "skill_name": "git-smart-commit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just made styling changes to the category badge component. Stage the changes and create a commit with proper conventional commit format.",
+      "expected_output": "A commit message in style(ui) format with detailed bullet points describing the styling improvements to the category badge",
+      "files": [],
+      "context": "This tests the skill's ability to detect UI/styling changes and classify them correctly as style type"
+    },
+    {
+      "id": 2,
+      "prompt": "I created a new API route handler for recurring transactions. Stage the new file and create a smart commit for this backend feature.",
+      "expected_output": "A commit message in feat(backend) format that describes the new route handler creation with details about CRUD operations",
+      "files": [],
+      "context": "Tests detection of new files and proper feat classification for new functionality"
+    },
+    {
+      "id": 3,
+      "prompt": "I made several changes: updated the database schema, created a new utility module, enhanced the dashboard component, created a new page, and updated types. Create a comprehensive commit message.",
+      "expected_output": "A feat commit message that captures the complexity of multiple changes across database, frontend, and types with detailed breakdown mentioning new files",
+      "files": [],
+      "context": "Tests the skill's ability to handle complex changes with multiple scopes and provide appropriate detail level"
+    }
+  ]
+}

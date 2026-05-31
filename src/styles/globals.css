@@ -37,36 +37,38 @@
     --brand-accent:   210 59% 44%;   /* #2E75B6 */
 
     /* ── shadcn/ui semantic tokens (light) ── */
-    --background:          35 100% 99%;   /* #FFFCF6 - Marfim quente */
-    --foreground:          25 20% 42%;    /* #6D5A45 - Café suave */
+    /* REFINED NATURAL MINIMALISM: Tons naturais, minerais, com acentos em verde para crescimento financeiro */
 
-    --card:                0 0% 100%;     /* #FFFFFF - Branco suave */
-    --card-foreground:     25 20% 42%;    /* #6D5A45 - Café suave */
+    --background:          120 8% 98%;    /* #F8FAFB - Branco com leve hint neutro */
+    --foreground:          210 8% 18%;    /* #2B3236 - Cinza muito escuro, sofisticado */
 
-    --popover:             0 0% 100%;     /* #FFFFFF - Branco suave */
-    --popover-foreground:  25 20% 42%;    /* #6D5A45 - Café suave */
+    --card:                0 0% 100%;     /* #FFFFFF - Branco puro */
+    --card-foreground:     210 8% 18%;    /* #2B3236 - Cinza muito escuro */
 
-    --primary:             38 65% 55%;    /* #D9A441 - Amarelo queimado */
+    --popover:             0 0% 100%;     /* #FFFFFF - Branco puro */
+    --popover-foreground:  210 8% 18%;    /* #2B3236 - Cinza muito escuro */
+
+    --primary:             142 28% 45%;   /* #4A7C59 - Verde natural, calmo e confiável */
     --primary-foreground:  0 0% 100%;
 
-    --secondary:           35 92% 93%;    /* #FDF4E3 - Creme dourado */
-    --secondary-foreground:25 20% 42%;    /* #6D5A45 - Café suave */
+    --secondary:           120 8% 95%;    /* #F0F2F3 - Cinza muito claro, neutro */
+    --secondary-foreground:210 8% 18%;    /* #2B3236 - Cinza muito escuro */
 
-    --muted:               35 80% 88%;    /* #F7E8CC - Areia tostada clara */
-    --muted-foreground:    25 20% 58%;    /* #9C8467 - Bronze claro */
+    --muted:               120 8% 92%;    /* #E8EAEB - Cinza claro, quase imperceptível */
+    --muted-foreground:    210 6% 45%;    /* #747A80 - Cinza médio */
 
-    --accent:              15 75% 68%;    /* #E78F6B - Mel dourado */
-    --accent-foreground:   25 20% 42%;    /* #6D5A45 - Café suave */
+    --accent:              15 35% 72%;    /* #D4A89E - Terra/argila suave, complementa o verde */
+    --accent-foreground:   210 8% 18%;    /* #2B3236 - Cinza muito escuro */
 
     --destructive:         0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success:             142 71% 45%;
+    --success:             142 45% 50%;   /* #5FA86B - Verde mais vivo para sucesso */
     --success-foreground:  0 0% 100%;
 
-    --border:              35 20% 94%;    /* Bege muito claro - quase imperceptível */
-    --input:               35 20% 94%;    /* Bege muito claro - quase imperceptível */
-    --ring:                38 65% 55%;    /* #D9A441 - Amarelo queimado */
+    --border:              120 4% 94%;    /* Cinza extremamente claro - quase imperceptível */
+    --input:               120 4% 94%;    /* Cinza extremamente claro - quase imperceptível */
+    --ring:                142 28% 45%;   /* #4A7C59 - Verde natural */
 
     --radius: 0.5rem;
 

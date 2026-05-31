@@ -13,6 +13,12 @@ The Vite dev server proxies `/api` → `http://localhost:3001`, so the frontend 
 
 ## Commands
 
+### Quick Commands
+- `/commit` — Analyze staged git changes and create a smart conventional commit
+- `/commit-help` — Show help for the commit command
+
+### Project Scripts
+
 ```bash
 # Frontend (dev)
 npm run dev          # starts Vite on :5173, auto-generates routeTree.gen.ts
@@ -78,3 +84,31 @@ Key design decisions:
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `JWT_SECRET` | Yes | Signs/verifies auth tokens (default falls back to `dev-secret-change-in-production`) |
 | `PORT` | No | API port (default `3001`) |
+
+## Slash Commands
+
+This project includes custom slash commands for quick workflows:
+
+### `/commit`
+**Quick Smart Commit** — Analyze staged git changes and create a conventional commit automatically.
+
+```bash
+# Example workflow:
+git add src/components/Button.tsx
+/commit
+# → Claude analyzes changes and proposes: style(ui): improve button component styling
+```
+
+**How it works:**
+1. Analyzes `git diff --cached`
+2. Detects scope (frontend, backend, database, etc.)
+3. Classifies change type (feat, fix, style, refactor, etc.)
+4. Generates descriptive bullet points
+5. Shows proposed message and waits for approval
+6. Creates commit automatically on confirmation
+
+**Installed skills:**
+- `git-smart-commit` — Full skill with detailed options
+- `commit` — Quick `/commit` command shorthand
+
+See `.COMMIT_HELP.md` for detailed documentation.
