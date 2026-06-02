@@ -138,6 +138,7 @@ export interface DashboardSummary {
   totalExpense: number
   balance: number
   transactionCount: number
+  pendingReview: number
   month: string
 }
 

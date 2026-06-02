@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Plus, Pencil, Trash2, Check, X,
   TrendingUp, TrendingDown, Wallet, CheckCircle2, Circle,
@@ -9,6 +9,17 @@ import { toast } from 'sonner'
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api'
 import { useMonth } from '@/lib/month-context'
 import type { RecurringItem, RecurringEntry } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export const Route = createFileRoute('/_app/recorrentes')({ component: RecorrentesPage })
 
@@ -17,11 +28,7 @@ export const Route = createFileRoute('/_app/recorrentes')({ component: Recorrent
 const BRL = (v: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
 
-const INPUT = 'h-8 px-2.5 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring w-full'
-
 // ── types ─────────────────────────────────────────────────────────────────────
-
-type Tab = 'mes' | 'gerenciar'
 
 interface ItemWithEntry extends RecurringItem {
   entry?: RecurringEntry
@@ -37,8 +44,9 @@ interface FormState {
 // ── Modal criar/editar item ───────────────────────────────────────────────────
 
 function ItemModal({
-  item, onClose, onSaved,
+  open, item, onClose, onSaved,
 }: {
+  open: boolean
   item?: RecurringItem
   onClose: () => void
   onSaved: (saved: RecurringItem) => void
@@ -52,7 +60,7 @@ function ItemModal({
   const [saving, setSaving] = useState(false)
 
   const set = (k: keyof FormState) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm(prev => ({ ...prev, [k]: e.target.value }))
 
   async function handleSave() {
@@ -78,22 +86,14 @@ function ItemModal({
     }
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') onClose()
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
-      <div
-        className="bg-card rounded-xl border border-border shadow-2xl w-full max-w-md p-5 space-y-4"
-        onClick={e => e.stopPropagation()}
-        onKeyDown={onKeyDown}
-      >
-        <h2 className="text-base font-semibold text-foreground">
-          {item ? 'Editar item' : 'Novo item recorrente'}
-        </h2>
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{item ? 'Editar item' : 'Novo item recorrente'}</DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-3 pt-1">
           {/* Tipo */}
           <div className="flex rounded-lg border border-input overflow-hidden">
             {(['expense', 'income'] as const).map(t => (
@@ -115,93 +115,81 @@ function ItemModal({
             ))}
           </div>
 
-          {/* Descrição */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Descrição</label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="rec-desc">Descrição</Label>
+            <Input
+              id="rec-desc"
               autoFocus
               type="text"
               value={form.description}
               onChange={set('description')}
               placeholder="Ex: Aluguel, Salário, Netflix…"
-              className={INPUT}
             />
           </div>
 
-          {/* Dia do mês */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Dia de vencimento/recebimento <span className="text-muted-foreground/60">(opcional)</span>
-            </label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="rec-day">
+              Dia de vencimento/recebimento{' '}
+              <span className="text-muted-foreground/60 font-normal">(opcional)</span>
+            </Label>
+            <Input
+              id="rec-day"
               type="number"
               min={1}
               max={31}
               value={form.day_of_month}
               onChange={set('day_of_month')}
               placeholder="Ex: 5"
-              className={INPUT}
             />
           </div>
 
-          {/* Notas */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Notas <span className="text-muted-foreground/60">(opcional)</span>
-            </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="rec-notes">
+              Notas <span className="text-muted-foreground/60 font-normal">(opcional)</span>
+            </Label>
             <textarea
+              id="rec-notes"
               value={form.notes}
               onChange={set('notes')}
               rows={2}
               placeholder="Observações…"
-              className={cn(INPUT, 'h-auto resize-none py-1.5')}
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
-          <button
-            onClick={onClose}
-            className="h-9 px-4 border border-input text-sm rounded-md hover:bg-muted transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="h-9 px-4 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => void handleSave()} disabled={saving}>
             {saving ? 'Salvando…' : item ? 'Salvar' : 'Criar'}
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 // ── Confirm delete modal ──────────────────────────────────────────────────────
 
 function DeleteConfirm({
-  description, onClose, onConfirm,
-}: { description: string; onClose: () => void; onConfirm: () => void }) {
+  open, description, onClose, onConfirm,
+}: { open: boolean; description: string; onClose: () => void; onConfirm: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
-      <div className="bg-card rounded-xl border border-border shadow-2xl w-full max-w-sm p-5 space-y-4" onClick={e => e.stopPropagation()}>
-        <h2 className="text-base font-semibold text-foreground">Remover item?</h2>
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Remover item?</DialogTitle>
+        </DialogHeader>
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{description}</span> e todos os lançamentos
           mensais associados serão removidos permanentemente.
         </p>
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="h-9 px-4 border border-input text-sm rounded-md hover:bg-muted transition-colors">
-            Cancelar
-          </button>
-          <button onClick={onConfirm} className="h-9 px-4 bg-destructive text-destructive-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity">
-            Remover
-          </button>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button variant="destructive" onClick={onConfirm}>Remover</Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -277,19 +265,12 @@ function AmountCell({
           }}
           className="h-7 w-28 px-2 rounded border border-input bg-background text-xs text-right focus:outline-none focus:ring-1 focus:ring-ring"
         />
-        <button
-          onClick={() => void save()}
-          disabled={saving}
-          className="p-1 rounded hover:bg-primary/10 text-primary transition-colors"
-        >
+        <Button variant="ghost" size="icon" onClick={() => void save()} disabled={saving} className="h-6 w-6 text-primary hover:bg-primary/10">
           <Check className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={() => setEditing(false)}
-          className="p-1 rounded hover:bg-muted text-muted-foreground transition-colors"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => setEditing(false)} className="h-6 w-6">
           <X className="h-3.5 w-3.5" />
-        </button>
+        </Button>
       </div>
     )
   }
@@ -307,14 +288,11 @@ function AmountCell({
         {item.entry ? BRL(parseFloat(item.entry.amount)) : <span className="text-xs">— definir</span>}
       </button>
       {item.entry && (
-        <button
-          onClick={() => void handleDelete()}
-          disabled={saving}
-          className="p-1 rounded hover:bg-destructive/10 text-muted-foreground/40 hover:text-destructive transition-colors"
-          title="Remover valor deste mês"
-        >
+        <Button variant="ghost" size="icon" onClick={() => void handleDelete()} disabled={saving}
+          className="h-6 w-6 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10"
+          title="Remover valor deste mês">
           <X className="h-3 w-3" />
-        </button>
+        </Button>
       )}
     </div>
   )
@@ -483,35 +461,41 @@ function MonthView({
     <div className="space-y-5">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-border bg-card p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <TrendingUp className="h-3.5 w-3.5" />
-            Receitas previstas
-          </div>
-          <p className="font-mono text-lg font-semibold text-[hsl(var(--success))] tabular-nums">{BRL(totalIncome)}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <TrendingDown className="h-3.5 w-3.5" />
-            Despesas previstas
-          </div>
-          <p className="font-mono text-lg font-semibold text-[hsl(var(--destructive))] tabular-nums">{BRL(totalExpense)}</p>
-          {paidExpense > 0 && (
-            <p className="text-xs text-muted-foreground">Pago: {BRL(paidExpense)}</p>
-          )}
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Wallet className="h-3.5 w-3.5" />
-            Saldo previsto
-          </div>
-          <p className={cn(
-            'font-mono text-lg font-semibold tabular-nums',
-            balance >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]',
-          )}>
-            {BRL(balance)}
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <TrendingUp className="h-3.5 w-3.5" />
+              Receitas previstas
+            </div>
+            <p className="font-mono text-lg font-semibold text-[hsl(var(--success))] tabular-nums">{BRL(totalIncome)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <TrendingDown className="h-3.5 w-3.5" />
+              Despesas previstas
+            </div>
+            <p className="font-mono text-lg font-semibold text-[hsl(var(--destructive))] tabular-nums">{BRL(totalExpense)}</p>
+            {paidExpense > 0 && (
+              <p className="text-xs text-muted-foreground">Pago: {BRL(paidExpense)}</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Wallet className="h-3.5 w-3.5" />
+              Saldo previsto
+            </div>
+            <p className={cn(
+              'font-mono text-lg font-semibold tabular-nums',
+              balance >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]',
+            )}>
+              {BRL(balance)}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Receitas */}
@@ -590,20 +574,14 @@ function ManageView({
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => onEdit(item)}
-                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                        title="Editar"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(item)}
+                        className="h-7 w-7" title="Editar">
                         <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onDelete(item)}
-                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                        title="Remover"
-                      >
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => onDelete(item)}
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10" title="Remover">
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -635,28 +613,30 @@ function ManageView({
 
 export function RecorrentesPage() {
   const { monthKey, monthLabel } = useMonth()
-  const [tab,   setTab]   = useState<Tab>('mes')
 
   const [items,   setItems]   = useState<ItemWithEntry[]>([])
   const [loading, setLoading] = useState(true)
 
-  const [modal,      setModal]      = useState<'create' | 'edit' | null>(null)
-  const [editTarget, setEditTarget] = useState<RecurringItem | undefined>()
+  const [showModal,    setShowModal]    = useState(false)
+  const [editTarget,   setEditTarget]   = useState<RecurringItem | undefined>()
   const [deleteTarget, setDeleteTarget] = useState<RecurringItem | null>(null)
 
-  const fetchItems = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false
     setLoading(true)
-    try {
-      const res = await apiGet<{ data: (RecurringItem & { entries: RecurringEntry[] })[] }>(`/api/recurrents?month=${monthKey}`)
-      setItems(res.data.map(item => ({ ...item, entry: item.entries?.[0] })))
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Erro ao carregar itens')
-    } finally {
-      setLoading(false)
-    }
+    setItems([])
+    apiGet<{ data: (RecurringItem & { entries: RecurringEntry[] })[] }>(`/api/recurrents?month=${monthKey}`)
+      .then(res => {
+        if (!cancelled) setItems(res.data.map(item => ({ ...item, entry: item.entries?.[0] })))
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) toast.error(e instanceof Error ? e.message : 'Erro ao carregar itens')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
   }, [monthKey])
-
-  useEffect(() => { void fetchItems() }, [fetchItems])
 
   function handleItemSaved(saved: RecurringItem) {
     setItems(prev => {
@@ -691,74 +671,63 @@ export function RecorrentesPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-4xl mx-auto">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Recorrentes</h1>
-        <p className="text-sm text-muted-foreground mt-0.5 capitalize">
-          {monthLabel} — receitas e despesas fixas com valores mensais variáveis
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center justify-between border-b border-border">
-        <div className="flex items-center gap-0">
-          {([['mes', 'Visão do mês'], ['gerenciar', 'Gerenciar itens']] as [Tab, string][]).map(([t, label]) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
-                tab === t
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {label}
-            </button>
-          ))}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Recorrentes</h1>
+          <p className="text-sm text-muted-foreground mt-0.5 capitalize">
+            {monthLabel} — receitas e despesas fixas com valores mensais variáveis
+          </p>
         </div>
-        <button
-          onClick={() => { setEditTarget(undefined); setModal('create') }}
-          className="flex items-center gap-1.5 h-8 px-3 bg-primary text-primary-foreground text-xs font-medium rounded-md hover:opacity-90 transition-opacity mb-1"
-        >
+        <Button size="sm" onClick={() => { setEditTarget(undefined); setShowModal(true) }}>
           <Plus className="h-3.5 w-3.5" />
           Novo item
-        </button>
+        </Button>
       </div>
 
-      {/* Content */}
-      {loading ? (
-        <div className="py-16 text-center text-muted-foreground text-sm">Carregando…</div>
-      ) : tab === 'mes' ? (
-        <MonthView
-          items={items}
-          month={monthKey}
-          onEntryUpdated={handleEntryUpdated}
-          onEntryDeleted={handleEntryDeleted}
-        />
-      ) : (
-        <ManageView
-          items={allItems}
-          onEdit={item => { setEditTarget(item); setModal('edit') }}
-          onDelete={item => setDeleteTarget(item)}
-        />
-      )}
+      <Tabs defaultValue="mes">
+        <TabsList>
+          <TabsTrigger value="mes">Visão do mês</TabsTrigger>
+          <TabsTrigger value="gerenciar">Gerenciar itens</TabsTrigger>
+        </TabsList>
 
-      {/* Modals */}
-      {(modal === 'create' || modal === 'edit') && (
-        <ItemModal
-          item={modal === 'edit' ? editTarget : undefined}
-          onClose={() => setModal(null)}
-          onSaved={handleItemSaved}
-        />
-      )}
-      {deleteTarget && (
-        <DeleteConfirm
-          description={deleteTarget.description}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={() => void handleDelete()}
-        />
-      )}
+        <TabsContent value="mes" className="mt-4">
+          {loading ? (
+            <div className="py-16 text-center text-muted-foreground text-sm">Carregando…</div>
+          ) : (
+            <MonthView
+              items={items}
+              month={monthKey}
+              onEntryUpdated={handleEntryUpdated}
+              onEntryDeleted={handleEntryDeleted}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="gerenciar" className="mt-4">
+          {loading ? (
+            <div className="py-16 text-center text-muted-foreground text-sm">Carregando…</div>
+          ) : (
+            <ManageView
+              items={allItems}
+              onEdit={item => { setEditTarget(item); setShowModal(true) }}
+              onDelete={item => setDeleteTarget(item)}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <ItemModal
+        open={showModal}
+        item={editTarget}
+        onClose={() => { setShowModal(false); setEditTarget(undefined) }}
+        onSaved={handleItemSaved}
+      />
+      <DeleteConfirm
+        open={!!deleteTarget}
+        description={deleteTarget?.description ?? ''}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   )
 }

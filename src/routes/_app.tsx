@@ -38,27 +38,35 @@ function useRecurringReviewBanner() {
 }
 
 function MonthPicker() {
-  const { monthLabel, prevMonth, nextMonth } = useMonth()
+  const { monthLabel, prevMonth, nextMonth, isCurrentMonth, isReadOnly } = useMonth()
   return (
-    <div className="flex items-center gap-0.5 bg-muted/60 rounded-lg p-0.5">
-      <button
-        onClick={prevMonth}
-        className="p-1.5 rounded hover:bg-background hover:shadow-sm transition-all text-muted-foreground hover:text-foreground"
-        title="Mês anterior"
-      >
-        <ChevronLeft className="h-3.5 w-3.5" />
-      </button>
-      <div className="flex items-center gap-1.5 px-2 min-w-[148px] justify-center">
-        <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <span className="text-sm font-medium text-foreground capitalize">{monthLabel}</span>
+    <div className="flex items-center gap-2">
+      {isReadOnly && (
+        <span className="text-xs text-muted-foreground bg-muted border border-border rounded-full px-2.5 py-0.5">
+          somente leitura
+        </span>
+      )}
+      <div className="flex items-center gap-0.5 bg-muted/60 rounded-lg p-0.5">
+        <button
+          onClick={prevMonth}
+          className="p-1.5 rounded hover:bg-background hover:shadow-sm transition-all text-muted-foreground hover:text-foreground"
+          title="Mês anterior"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+        </button>
+        <div className="flex items-center gap-1.5 px-2 min-w-[148px] justify-center">
+          <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground capitalize">{monthLabel}</span>
+        </div>
+        <button
+          onClick={nextMonth}
+          disabled={isCurrentMonth}
+          className="p-1.5 rounded transition-all text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:bg-background hover:enabled:shadow-sm hover:enabled:text-foreground"
+          title={isCurrentMonth ? 'Mês atual' : 'Próximo mês'}
+        >
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
       </div>
-      <button
-        onClick={nextMonth}
-        className="p-1.5 rounded hover:bg-background hover:shadow-sm transition-all text-muted-foreground hover:text-foreground"
-        title="Próximo mês"
-      >
-        <ChevronRight className="h-3.5 w-3.5" />
-      </button>
     </div>
   )
 }

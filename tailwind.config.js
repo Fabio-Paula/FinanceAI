@@ -1,6 +1,5 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+export default {
   darkMode: ["class"],
   content: [
     "./index.html",
@@ -13,7 +12,6 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // ── shadcn/ui semantic tokens ──────────────────────────────────
         background:    "hsl(var(--background))",
         foreground:    "hsl(var(--foreground))",
 
@@ -53,7 +51,6 @@ const config: Config = {
         input:   "hsl(var(--input))",
         ring:    "hsl(var(--ring))",
 
-        // ── chart tokens ───────────────────────────────────────────────
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
@@ -62,7 +59,6 @@ const config: Config = {
           "5": "hsl(var(--chart-5))",
         },
 
-        // ── 13 category colors ─────────────────────────────────────────
         category: {
           mercado:      "var(--category-mercado)",
           restaurante:  "var(--category-restaurante)",
@@ -84,12 +80,7 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // ── FinanceAI brand colors (raw, for reference) ──────────────────
-      // primary:  #1E3A5F  (azul escuro)
-      // accent:   #2E75B6  (azul médio)
     },
   },
   plugins: [],
-} satisfies Config;
-
-export default config;
+};

@@ -9,6 +9,8 @@ interface MonthContextValue {
   monthLabel: string     // "maio de 2026"
   prevMonth: () => void
   nextMonth: () => void
+  isCurrentMonth: boolean
+  isReadOnly: boolean    // true when viewing any month other than the current one
 }
 
 const MonthContext = createContext<MonthContextValue | null>(null)
@@ -18,11 +20,14 @@ export function MonthProvider({ children }: { children: React.ReactNode }) {
   const [year,  setYear]  = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
 
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth()
+
   function prevMonth() {
     if (month === 0) { setYear(y => y - 1); setMonth(11) }
     else setMonth(m => m - 1)
   }
   function nextMonth() {
+    if (isCurrentMonth) return
     if (month === 11) { setYear(y => y + 1); setMonth(0) }
     else setMonth(m => m + 1)
   }
@@ -31,7 +36,13 @@ export function MonthProvider({ children }: { children: React.ReactNode }) {
   const monthLabel = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 
   return (
-    <MonthContext.Provider value={{ year, month, setYear, setMonth, monthKey, monthLabel, prevMonth, nextMonth }}>
+    <MonthContext.Provider value={{
+      year, month, setYear, setMonth,
+      monthKey, monthLabel,
+      prevMonth, nextMonth,
+      isCurrentMonth,
+      isReadOnly: !isCurrentMonth,
+    }}>
       {children}
     </MonthContext.Provider>
   )

@@ -21,7 +21,7 @@ dashboardRoutes.get('/summary', async (c) => {
     to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
   }
 
-  const [income, expense, count] = await Promise.all([
+  const [income, expense, count, pending] = await Promise.all([
     prisma.transaction.aggregate({
       where: { user_id: userId, type: 'income', date: { gte: from, lte: to } },
       _sum: { amount: true },
@@ -32,6 +32,9 @@ dashboardRoutes.get('/summary', async (c) => {
     }),
     prisma.transaction.count({
       where: { user_id: userId, date: { gte: from, lte: to } },
+    }),
+    prisma.transaction.count({
+      where: { user_id: userId, is_ai_confirmed: false, date: { gte: from, lte: to } },
     }),
   ])
 
@@ -44,6 +47,7 @@ dashboardRoutes.get('/summary', async (c) => {
       totalExpense,
       balance: totalIncome - totalExpense,
       transactionCount: count,
+      pendingReview: pending,
       month: monthParam ?? `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, '0')}`,
     },
   })

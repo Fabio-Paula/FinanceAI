@@ -7,30 +7,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── JetBrains Mono font imports ──────────────────────────────────────────── */
+/* ── IBM Plex Sans font imports ───────────────────────────────────────────── */
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-regular.woff2") format("woff2");
+  font-family: "IBM Plex Sans";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-medium.woff2") format("woff2");
+  font-family: "IBM Plex Sans";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-500-normal.woff2") format("woff2");
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/web/jbmono-semibold.woff2") format("woff2");
+  font-family: "IBM Plex Sans";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-600-normal.woff2") format("woff2");
   font-weight: 600;
   font-display: swap;
 }
 
 /* ── CSS custom properties ─────────────────────────────────────────────────── */
 @layer base {
+  html {
+    font-family: "IBM Plex Sans", var(--font-sans), system-ui, sans-serif !important;
+  }
+
   :root {
     /* ── Brand ── */
     --brand-primary:  215 62% 25%;   /* #1E3A5F */
@@ -80,8 +84,8 @@
     --chart-5: 0 72% 51%;
 
     /* ── Font variables ── */
-    --font-sans: "JetBrains Mono", system-ui, sans-serif;
-    --font-mono: "JetBrains Mono", monospace;
+    --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Sans", monospace;
 
     /* ────────────────────────────────────────────────────────────────────────
        Category colors — LIGHT MODE
@@ -288,7 +292,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: "IBM Plex Sans", var(--font-sans), system-ui, sans-serif !important;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
@@ -296,5 +301,16 @@
   [data-currency],
   .font-mono {
     font-family: var(--font-mono);
+  }
+
+  /* Neutralize browser autofill background highlight (Chrome, Safari) */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px hsl(var(--background)) inset !important;
+    -webkit-text-fill-color: hsl(var(--foreground)) !important;
+    caret-color: hsl(var(--foreground));
+    transition: background-color 5000s ease-in-out 0s;
   }
 }

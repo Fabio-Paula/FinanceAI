@@ -1,8 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Upload, FileText, CheckCircle2, Loader2, X, AlertCircle } from 'lucide-react'
-import { IMPORTS } from '@/lib/mock-data'
+import { apiGet } from '@/lib/api'
+import type { Import } from '@/types'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_app/imports')({ component: ImportPage })
 
@@ -19,6 +22,12 @@ export function ImportPage() {
   const [step, setStep]         = useState<'upload'|'mapping'|'processing'|'done'>('upload')
   const [progress, setProgress] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const { data: importsData } = useQuery({
+    queryKey: ['imports'],
+    queryFn: () => apiGet<{ data: Import[] }>('/api/imports'),
+  })
+  const importHistory = importsData?.data ?? []
 
   function startUpload(f: File) { setFile(f); setStep('mapping') }
 
@@ -87,9 +96,9 @@ export function ImportPage() {
               <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
               <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB — Nubank detectado</p>
             </div>
-            <button onClick={() => { setFile(null); setStep('upload') }} className="p-1 rounded hover:bg-muted transition-colors">
+            <Button variant="ghost" size="icon" onClick={() => { setFile(null); setStep('upload') }} className="h-7 w-7">
               <X className="h-4 w-4 text-muted-foreground" />
-            </button>
+            </Button>
           </div>
           <div className="rounded-lg border border-border bg-card p-5 space-y-3">
             <p className="text-sm font-semibold text-foreground">Mapeamento de Colunas</p>
@@ -112,9 +121,9 @@ export function ImportPage() {
               ))}
             </div>
           </div>
-          <button onClick={startProcessing} className="w-full h-10 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity">
+          <Button onClick={startProcessing} className="w-full">
             Processar com IA
-          </button>
+          </Button>
         </div>
       )}
 
@@ -136,9 +145,9 @@ export function ImportPage() {
           <CheckCircle2 className="h-10 w-10 text-[hsl(var(--success))] mx-auto" />
           <p className="text-sm font-semibold text-foreground">Importação concluída!</p>
           <p className="text-xs text-muted-foreground">18 transações importadas · 16 categorizadas · 2 para revisar</p>
-          <button onClick={() => setStep('upload')} className="mt-2 h-8 px-4 bg-background border border-border text-sm rounded-md hover:bg-muted transition-colors">
+          <Button variant="outline" size="sm" onClick={() => setStep('upload')} className="mt-2">
             Nova importação
-          </button>
+          </Button>
         </div>
       )}
 
@@ -146,23 +155,31 @@ export function ImportPage() {
       <div className="space-y-2">
         <h2 className="text-sm font-semibold text-foreground">Histórico</h2>
         <div className="rounded-lg border border-border bg-card divide-y divide-border">
-          {IMPORTS.map(imp => {
-            const { label, icon: Icon, cls } = STATUS_MAP[imp.status as keyof typeof STATUS_MAP]
-            return (
-              <div key={imp.id} className="flex items-center gap-3 px-4 py-3">
-                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground truncate">{imp.filename}</p>
-                  <p className="text-xs text-muted-foreground">{imp.institution} · {new Date(imp.date).toLocaleDateString('pt-BR')}</p>
+          {importHistory.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground text-sm">Nenhuma importação encontrada.</div>
+          ) : (
+            importHistory.map(imp => {
+              const { label, icon: Icon, cls } = STATUS_MAP[imp.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.pending
+              return (
+                <div key={imp.id} className="flex items-center gap-3 px-4 py-3">
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground truncate">{imp.filename}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {imp.institution ?? '—'} · {new Date(imp.created_at).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                  {(imp.total_rows ?? 0) > 0 && (
+                    <span className="text-xs text-muted-foreground font-mono">{imp.total_rows} linhas</span>
+                  )}
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Icon className={cn('h-3.5 w-3.5', cls)} />
+                    <span className={cls}>{label}</span>
+                  </div>
                 </div>
-                {imp.rows > 0 && <span className="text-xs text-muted-foreground font-mono">{imp.rows} linhas</span>}
-                <div className="flex items-center gap-1.5 text-xs">
-                  <Icon className={cn('h-3.5 w-3.5', cls)} />
-                  <span className={cls}>{label}</span>
-                </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       </div>
     </div>
