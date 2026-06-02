@@ -116,7 +116,7 @@ function ItemModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="rec-desc">Descrição</Label>
+            <Label htmlFor="rec-desc" className="text-xs font-medium text-muted-foreground">Descrição</Label>
             <Input
               id="rec-desc"
               autoFocus
@@ -128,7 +128,7 @@ function ItemModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="rec-day">
+            <Label htmlFor="rec-day" className="text-xs font-medium text-muted-foreground">
               Dia de vencimento/recebimento{' '}
               <span className="text-muted-foreground/60 font-normal">(opcional)</span>
             </Label>
@@ -144,7 +144,7 @@ function ItemModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="rec-notes">
+            <Label htmlFor="rec-notes" className="text-xs font-medium text-muted-foreground">
               Notas <span className="text-muted-foreground/60 font-normal">(opcional)</span>
             </Label>
             <textarea
@@ -671,24 +671,24 @@ export function RecorrentesPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Recorrentes</h1>
-          <p className="text-sm text-muted-foreground mt-0.5 capitalize">
-            {monthLabel} — receitas e despesas fixas com valores mensais variáveis
-          </p>
-        </div>
-        <Button size="sm" onClick={() => { setEditTarget(undefined); setShowModal(true) }}>
-          <Plus className="h-3.5 w-3.5" />
-          Novo item
-        </Button>
+      <div>
+        <h1 className="text-xl font-semibold text-foreground">Recorrentes</h1>
+        <p className="text-sm text-muted-foreground mt-0.5 capitalize">
+          {monthLabel} — receitas e despesas fixas com valores mensais variáveis
+        </p>
       </div>
 
       <Tabs defaultValue="mes">
-        <TabsList>
-          <TabsTrigger value="mes">Visão do mês</TabsTrigger>
-          <TabsTrigger value="gerenciar">Gerenciar itens</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between border-b border-border">
+          <TabsList className="h-auto justify-start gap-1 rounded-none border-0 bg-transparent p-0 text-muted-foreground">
+            <TabsTrigger value="mes" className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 -mb-px font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Visão do mês</TabsTrigger>
+            <TabsTrigger value="gerenciar" className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 -mb-px font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Gerenciar itens</TabsTrigger>
+          </TabsList>
+          <Button size="sm" onClick={() => { setEditTarget(undefined); setShowModal(true) }} className="h-8 px-3 text-xs mb-1">
+            <Plus className="h-3.5 w-3.5" />
+            Novo item
+          </Button>
+        </div>
 
         <TabsContent value="mes" className="mt-4">
           {loading ? (

@@ -12,8 +12,6 @@ import { useTransactions, type TxInput } from '@/lib/transactions-store'
 import { useMonth } from '@/lib/month-context'
 import { apiGet } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Dialog,
@@ -27,6 +25,11 @@ export const Route = createFileRoute('/_app/categories')({ component: Categories
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const TYPE_LABELS = { income: 'Receita', expense: 'Despesa', both: 'Ambos' }
+const TYPE_COLORS = {
+  income:  'text-[hsl(var(--success))] bg-[hsl(var(--success))]/10',
+  expense: 'text-[hsl(var(--destructive))] bg-destructive/10',
+  both:    'text-muted-foreground bg-muted',
+}
 
 function categoryType(name: string): 'income' | 'expense' | 'both' {
   if (['Salário', 'Investimentos'].includes(name)) return 'income'
@@ -88,13 +91,13 @@ function OverviewTab({ txCount }: { txCount: Record<string, number> }) {
                 </div>
               </td>
               <td className="px-4 py-3">
-                <Badge variant={cat.type === 'income' ? 'default' : cat.type === 'expense' ? 'destructive' : 'secondary'}>
+                <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', TYPE_COLORS[cat.type])}>
                   {TYPE_LABELS[cat.type]}
-                </Badge>
+                </span>
               </td>
               <td className="px-4 py-3 text-center font-mono text-xs text-muted-foreground">{cat.count}</td>
               <td className="px-4 py-3 text-center">
-                <Badge variant="outline">Sistema</Badge>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Sistema</span>
               </td>
             </tr>
           ))}
@@ -296,9 +299,9 @@ function DetailTab({
                   : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
                 <span className="w-3 h-3 rounded-full shrink-0" style={{ background: colors.hex }} />
                 <span className="font-medium text-foreground flex-1 truncate">{name}</span>
-                <Badge variant={type === 'income' ? 'default' : type === 'expense' ? 'destructive' : 'secondary'} className="mr-3 shrink-0">
+                <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium mr-3 shrink-0', TYPE_COLORS[type])}>
                   {TYPE_LABELS[type]}
-                </Badge>
+                </span>
                 <span className="text-xs text-muted-foreground mr-4 shrink-0 tabular-nums">
                   {txs.length} {txs.length === 1 ? 'transação' : 'transações'}
                 </span>
@@ -453,10 +456,12 @@ export function CategoriesPage() {
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Visão geral</TabsTrigger>
-          <TabsTrigger value="detail">Detalhamento por categoria</TabsTrigger>
-        </TabsList>
+        <div className="border-b border-border">
+          <TabsList className="h-auto justify-start gap-1 rounded-none border-0 bg-transparent p-0 text-muted-foreground">
+            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 -mb-px font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Visão geral</TabsTrigger>
+            <TabsTrigger value="detail" className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 -mb-px font-medium text-muted-foreground shadow-none hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">Detalhamento por categoria</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="mt-4">
           <OverviewTab txCount={txCount} />

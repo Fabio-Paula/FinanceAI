@@ -8,6 +8,7 @@ import {
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Info, Repeat2, Loader2 } from 'lucide-react'
 import { Currency } from '@/components/ui/currency'
 import { CategoryBadge } from '@/components/ui/category-badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { apiGet } from '@/lib/api'
 import { useMonth } from '@/lib/month-context'
@@ -21,23 +22,25 @@ function KpiCard({ label, value, sub, trend, trendUp, recurringNote }: {
   recurringNote?: string
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5 space-y-3">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <Currency value={value} size="lg" color="muted" className="text-foreground" />
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {trendUp
-          ? <TrendingUp className="h-3.5 w-3.5 text-[hsl(var(--success))]" />
-          : <TrendingDown className="h-3.5 w-3.5 text-[hsl(var(--destructive))]" />}
-        <span className={trendUp ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>{trend}</span>
-        <span>{sub}</span>
-      </div>
-      {recurringNote && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-2">
-          <Repeat2 className="h-3 w-3 shrink-0" />
-          <span>{recurringNote}</span>
+    <Card>
+      <CardContent className="p-5 space-y-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <Currency value={value} size="lg" color="muted" className="text-foreground" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {trendUp
+            ? <TrendingUp className="h-3.5 w-3.5 text-[hsl(var(--success))]" />
+            : <TrendingDown className="h-3.5 w-3.5 text-[hsl(var(--destructive))]" />}
+          <span className={trendUp ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>{trend}</span>
+          <span>{sub}</span>
         </div>
-      )}
-    </div>
+        {recurringNote && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-2">
+            <Repeat2 className="h-3 w-3 shrink-0" />
+            <span>{recurringNote}</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -202,19 +205,21 @@ export function DashboardPage() {
           sub="no período" trend="-" trendUp={false}
           recurringNote={recExpense > 0 ? `${BRL(recExpense)} recorrentes` : undefined}
         />
-        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
-          <p className="text-sm text-muted-foreground">Para Revisar</p>
-          <p className="text-2xl font-mono font-semibold text-foreground">{pendingReview}</p>
-          <div className="flex items-center gap-2 text-xs">
-            <AlertTriangle className="h-3.5 w-3.5 text-[hsl(var(--destructive))]" />
-            <span className="text-[hsl(var(--destructive))]">transações</span>
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-5 space-y-3">
+            <p className="text-sm text-muted-foreground">Para Revisar</p>
+            <p className="text-2xl font-mono font-semibold text-foreground">{pendingReview}</p>
+            <div className="flex items-center gap-2 text-xs">
+              <AlertTriangle className="h-3.5 w-3.5 text-[hsl(var(--destructive))]" />
+              <span className="text-[hsl(var(--destructive))]">transações</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-lg border border-border bg-card overflow-hidden flex flex-col min-h-[360px] pl-2 pr-5 pb-5">
+        <Card className="lg:col-span-2 overflow-hidden flex flex-col min-h-[360px] pl-2 pr-5 pb-5">
           <div className="flex items-center justify-between pt-5 pb-5">
             <h2 className="text-sm font-semibold text-foreground">Evolução Mensal</h2>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -249,83 +254,89 @@ export function DashboardPage() {
               </AreaChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </Card>
 
-        <div className="rounded-lg border border-border bg-card p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-foreground">Despesas por Categoria</h2>
-          {pieData.length === 0 ? (
-            <div className="h-[180px] flex items-center justify-center text-muted-foreground text-sm">Sem dados</div>
-          ) : (
-            <>
-              <ResponsiveContainer width="100%" height={180}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="total" nameKey="name"
-                    cx="50%" cy="50%" innerRadius={52} outerRadius={80} paddingAngle={2} strokeWidth={0}>
-                    {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<PieTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-2">
-                {pieData.slice(0, 5).map(({ name, total, color }) => (
-                  <div key={name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
-                      <span className="text-muted-foreground">{name}</span>
+        <Card>
+          <CardContent className="p-5 space-y-4">
+            <h2 className="text-sm font-semibold text-foreground">Despesas por Categoria</h2>
+            {pieData.length === 0 ? (
+              <div className="h-[180px] flex items-center justify-center text-muted-foreground text-sm">Sem dados</div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie data={pieData} dataKey="total" nameKey="name"
+                      cx="50%" cy="50%" innerRadius={52} outerRadius={80} paddingAngle={2} strokeWidth={0}>
+                      {pieData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<PieTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-2">
+                  {pieData.slice(0, 5).map(({ name, total, color }) => (
+                    <div key={name} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+                        <span className="text-muted-foreground">{name}</span>
+                      </div>
+                      <span className="font-mono text-foreground tabular-nums">{fmt(total)}</span>
                     </div>
-                    <span className="font-mono text-foreground tabular-nums">{fmt(total)}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">Insights</h2>
-          <div className="space-y-2.5">
-            {insights.map(({ id, type, text }) => (
-              <div key={id} className={cn(
-                'flex items-start gap-2.5 p-3 rounded-md text-sm border',
-                type === 'warning' && 'bg-destructive/5  border-destructive/15',
-                type === 'info'    && 'bg-accent/5       border-accent/15',
-                type === 'success' && 'bg-[hsl(var(--success))]/5 border-[hsl(var(--success))]/15',
-              )}>
-                <span className="mt-0.5 shrink-0">{INSIGHT_ICONS[type]}</span>
-                <p className="text-muted-foreground leading-snug">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">Últimas Transações</h2>
-          {recentTx.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Nenhuma transação neste mês.</p>
-          ) : (
-            <div className="space-y-1">
-              {recentTx.map(tx => {
-                const signedAmount = tx.type === 'income' ? parseFloat(tx.amount) : -parseFloat(tx.amount)
-                const catName = tx.category?.name ?? tx.ai_category?.name ?? 'Sem categoria'
-                return (
-                  <div key={tx.id} className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{tx.description}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(tx.date).toLocaleDateString('pt-BR')}</p>
-                    </div>
-                    <CategoryBadge category={catName} size="sm" />
-                    <Currency value={signedAmount} size="sm" color="auto" className="shrink-0 w-24 text-right" />
-                  </div>
-                )
-              })}
+        <Card>
+          <CardContent className="p-5 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Insights</h2>
+            <div className="space-y-2.5">
+              {insights.map(({ id, type, text }) => (
+                <div key={id} className={cn(
+                  'flex items-start gap-2.5 p-3 rounded-md text-sm border',
+                  type === 'warning' && 'bg-destructive/5  border-destructive/15',
+                  type === 'info'    && 'bg-accent/5       border-accent/15',
+                  type === 'success' && 'bg-[hsl(var(--success))]/5 border-[hsl(var(--success))]/15',
+                )}>
+                  <span className="mt-0.5 shrink-0">{INSIGHT_ICONS[type]}</span>
+                  <p className="text-muted-foreground leading-snug">{text}</p>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Últimas Transações</h2>
+            {recentTx.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">Nenhuma transação neste mês.</p>
+            ) : (
+              <div className="space-y-1">
+                {recentTx.map(tx => {
+                  const signedAmount = tx.type === 'income' ? parseFloat(tx.amount) : -parseFloat(tx.amount)
+                  const catName = tx.category?.name ?? tx.ai_category?.name ?? 'Sem categoria'
+                  return (
+                    <div key={tx.id} className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{tx.description}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(tx.date).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                      <CategoryBadge category={catName} size="sm" />
+                      <Currency value={signedAmount} size="sm" color="auto" className="shrink-0 w-24 text-right" />
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

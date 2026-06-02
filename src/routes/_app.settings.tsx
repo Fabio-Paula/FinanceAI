@@ -6,10 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_app/settings')({ component: SettingsPage })
 
@@ -40,26 +38,29 @@ export function SettingsPage() {
 
       {/* Perfil */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="p-5 pb-3">
           <CardTitle className="text-sm font-semibold">Perfil</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5 pt-0">
           <form onSubmit={saveProfile} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Nome</Label>
+              <div className="space-y-1">
+                <Label htmlFor="name" className="text-xs font-normal text-muted-foreground">Nome</Label>
                 <Input id="name" defaultValue={user.name ?? 'Demo User'} />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="email">E-mail</Label>
-                <Input id="email" defaultValue={user.email ?? 'demo@financeai.dev'} disabled />
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-xs font-normal text-muted-foreground">E-mail</Label>
+                <Input id="email" defaultValue={user.email ?? 'demo@financeai.dev'} disabled className="bg-muted text-muted-foreground" />
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant={user.plan === 'pro' ? 'default' : 'secondary'}>
+              <span className={cn(
+                'text-xs px-2 py-0.5 rounded-full font-medium',
+                user.plan === 'pro' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+              )}>
                 {user.plan === 'pro' ? '✦ Pro' : 'Free'}
-              </Badge>
-              <Button type="submit" size="sm">Salvar</Button>
+              </span>
+              <Button type="submit" className="h-8 px-4 text-xs">Salvar</Button>
             </div>
           </form>
         </CardContent>
@@ -67,10 +68,10 @@ export function SettingsPage() {
 
       {/* Provedor de IA */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="p-5 pb-3">
           <CardTitle className="text-sm font-semibold">Inteligência Artificial</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-5 pt-0 space-y-4">
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm font-medium text-foreground">Provedor de IA</p>
@@ -87,10 +88,8 @@ export function SettingsPage() {
             </Select>
           </div>
 
-          <Separator />
-
-          <div className="space-y-1.5">
-            <Label className="flex items-center gap-1.5">
+          <div className="space-y-1">
+            <Label className="text-xs font-normal text-muted-foreground flex items-center gap-1.5">
               <Key className="h-3 w-3" /> Chave de API
             </Label>
             <div className="flex gap-2">
@@ -104,19 +103,20 @@ export function SettingsPage() {
 
       {/* Aparência */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="p-5 pb-3">
           <CardTitle className="text-sm font-semibold">Aparência</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5 pt-0">
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm font-medium text-foreground">Modo escuro</p>
               <p className="text-xs text-muted-foreground mt-0.5">Alterna entre tema claro e escuro</p>
             </div>
-            <div className="flex items-center gap-2">
-              {darkMode ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
-              <Switch checked={darkMode} onCheckedChange={toggleDark} />
-            </div>
+            <button onClick={() => toggleDark(!darkMode)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-background text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {darkMode ? 'Escuro' : 'Claro'}
+            </button>
           </div>
         </CardContent>
       </Card>

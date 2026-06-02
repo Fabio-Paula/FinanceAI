@@ -92,7 +92,7 @@ function TransactionModal({
 
         <form onSubmit={handleSubmit} className="space-y-3 pt-1">
           <div>
-            <Label className="mb-1.5 block">Tipo</Label>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Tipo</Label>
             <div className="flex gap-2">
               {(['expense', 'income'] as const).map(t => (
                 <button key={t} type="button"
@@ -112,24 +112,24 @@ function TransactionModal({
           </div>
 
           <div>
-            <Label htmlFor="tx-date" className="mb-1.5 block">Data</Label>
+            <Label htmlFor="tx-date" className="text-xs font-medium text-muted-foreground mb-1.5 block">Data</Label>
             <Input id="tx-date" type="date" value={form.date} onChange={set('date')} required />
           </div>
 
           <div>
-            <Label htmlFor="tx-desc" className="mb-1.5 block">Descrição</Label>
+            <Label htmlFor="tx-desc" className="text-xs font-medium text-muted-foreground mb-1.5 block">Descrição</Label>
             <Input id="tx-desc" type="text" value={form.description} onChange={set('description')}
               placeholder="Ex: Supermercado Extra" required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="tx-amount" className="mb-1.5 block">Valor (R$)</Label>
+              <Label htmlFor="tx-amount" className="text-xs font-medium text-muted-foreground mb-1.5 block">Valor (R$)</Label>
               <Input id="tx-amount" type="number" min="0.01" step="0.01" value={form.amount}
                 onChange={set('amount')} placeholder="0,00" required />
             </div>
             <div>
-              <Label className="mb-1.5 block">Categoria</Label>
+              <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Categoria</Label>
               <Select
                 value={form.category_id || '__none__'}
                 onValueChange={v => setForm(prev => ({ ...prev, category_id: v === '__none__' ? '' : v }))}
