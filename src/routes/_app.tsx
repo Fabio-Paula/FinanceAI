@@ -5,6 +5,7 @@ import {
   Link,
   useLocation,
   useNavigate,
+  useSearch,
 } from '@tanstack/react-router'
 import {
   LayoutDashboard,
@@ -81,6 +82,7 @@ const MONTHS_SHORT = [
 function MonthPicker() {
   const { year, month, monthLabel, prevMonth, nextMonth, isCurrentMonth, isReadOnly } = useMonth()
   const navigate = useNavigate()
+  const currentSearch = useSearch({ from: '/_app' })
   const [open, setOpen] = useState(false)
   const [pickerYear, setPickerYear] = useState(year)
 
@@ -97,16 +99,13 @@ function MonthPicker() {
     const key = `${pickerYear}-${String(m + 1).padStart(2, '0')}`
     const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
     navigate({
-      search: (prev): { month: string | undefined } => ({
-        ...prev,
-        month: key === nowKey ? undefined : key,
-      }),
+      search: { ...currentSearch, month: key === nowKey ? undefined : key },
     })
     setOpen(false)
   }
 
   function goToToday() {
-    navigate({ search: (prev): { month: string | undefined } => ({ ...prev, month: undefined }) })
+    navigate({ search: { ...currentSearch, month: undefined } })
   }
 
   function isMonthDisabled(y: number, m: number) {
@@ -210,6 +209,7 @@ function MonthPicker() {
 
 function AppLayout() {
   const location = useLocation()
+  const currentSearch = useSearch({ from: '/_app' })
   const { visible: showBanner, dismiss: dismissBanner, monthName } = useRecurringReviewBanner()
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem('sidebar-collapsed') === '1'
@@ -321,7 +321,7 @@ function AppLayout() {
                 </p>
                 <Link
                   to="/recorrentes"
-                  search={(prev): { month: string | undefined } => prev}
+                  search={currentSearch}
                   onClick={dismissBanner}
                   className="text-xs font-semibold text-amber-700 dark:text-amber-300 underline underline-offset-2 hover:no-underline transition-all whitespace-nowrap"
                 >
