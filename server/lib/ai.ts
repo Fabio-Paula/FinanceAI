@@ -9,8 +9,13 @@ export interface AiCategorizeResult {
   confidence: number
 }
 
-function buildPrompt(description: string, amount: string, type: string, categories: AiCategory[]): string {
-  const list = categories.map(c => `- id: "${c.id}", name: "${c.name}"`).join('\n')
+function buildPrompt(
+  description: string,
+  amount: string,
+  type: string,
+  categories: AiCategory[]
+): string {
+  const list = categories.map((c) => `- id: "${c.id}", name: "${c.name}"`).join('\n')
   return `You are a financial transaction categorizer for a Brazilian personal finance app.
 
 Categorize the following transaction into exactly one of the available categories.
@@ -36,7 +41,7 @@ export async function categorizeWithGemini(
   description: string,
   amount: string,
   type: string,
-  categories: AiCategory[],
+  categories: AiCategory[]
 ): Promise<AiCategorizeResult> {
   const prompt = buildPrompt(description, amount, type, categories)
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`
@@ -52,10 +57,12 @@ export async function categorizeWithGemini(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error((err as { error?: { message?: string } }).error?.message ?? `Gemini error ${res.status}`)
+    throw new Error(
+      (err as { error?: { message?: string } }).error?.message ?? `Gemini error ${res.status}`
+    )
   }
 
-  const json = await res.json() as { candidates: { content: { parts: { text: string }[] } }[] }
+  const json = (await res.json()) as { candidates: { content: { parts: { text: string }[] } }[] }
   const text = json.candidates[0].content.parts[0].text
   return parseResult(text)
 }
@@ -65,7 +72,7 @@ export async function categorizeWithOpenAI(
   description: string,
   amount: string,
   type: string,
-  categories: AiCategory[],
+  categories: AiCategory[]
 ): Promise<AiCategorizeResult> {
   const prompt = buildPrompt(description, amount, type, categories)
 
@@ -81,10 +88,12 @@ export async function categorizeWithOpenAI(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error((err as { error?: { message?: string } }).error?.message ?? `OpenAI error ${res.status}`)
+    throw new Error(
+      (err as { error?: { message?: string } }).error?.message ?? `OpenAI error ${res.status}`
+    )
   }
 
-  const json = await res.json() as { choices: { message: { content: string } }[] }
+  const json = (await res.json()) as { choices: { message: { content: string } }[] }
   return parseResult(json.choices[0].message.content)
 }
 
@@ -93,7 +102,7 @@ export async function categorizeWithAnthropic(
   description: string,
   amount: string,
   type: string,
-  categories: AiCategory[],
+  categories: AiCategory[]
 ): Promise<AiCategorizeResult> {
   const prompt = buildPrompt(description, amount, type, categories)
 
@@ -113,9 +122,11 @@ export async function categorizeWithAnthropic(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error((err as { error?: { message?: string } }).error?.message ?? `Anthropic error ${res.status}`)
+    throw new Error(
+      (err as { error?: { message?: string } }).error?.message ?? `Anthropic error ${res.status}`
+    )
   }
 
-  const json = await res.json() as { content: { text: string }[] }
+  const json = (await res.json()) as { content: { text: string }[] }
   return parseResult(json.content[0].text)
 }

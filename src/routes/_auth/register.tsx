@@ -13,10 +13,7 @@ const schema = z
       .min(2, 'Nome deve ter no mínimo 2 caracteres')
       .max(80, 'Nome muito longo')
       .refine((v) => v.trim().split(/\s+/).length >= 1, 'Nome inválido'),
-    email: z
-      .string()
-      .min(1, 'E-mail é obrigatório')
-      .email('E-mail inválido'),
+    email: z.string().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
     password: z
       .string()
       .min(1, 'Senha é obrigatória')
@@ -53,9 +50,14 @@ function RegisterPage() {
   })
 
   const password = watch('password', '')
-  const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3
+  const strength =
+    password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3
   const strengthColor =
-    strength === 1 ? 'hsl(var(--destructive))' : strength === 2 ? 'hsl(38 92% 50%)' : 'hsl(142 45% 50%)'
+    strength === 1
+      ? 'hsl(var(--destructive))'
+      : strength === 2
+        ? 'hsl(38 92% 50%)'
+        : 'hsl(142 45% 50%)'
 
   async function onSubmit({ name, email, password }: FormData) {
     const res = await fetch('/api/auth/register', {
@@ -75,7 +77,11 @@ function RegisterPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 bg-card border border-border rounded-lg p-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="space-y-4 bg-card border border-border rounded-lg p-6"
+    >
       <div className="space-y-1">
         <label className="text-sm font-medium text-foreground">Nome</label>
         <input
@@ -85,9 +91,7 @@ function RegisterPage() {
           {...register('name')}
           className={inputCls(!!errors.name)}
         />
-        {errors.name && (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
-        )}
+        {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
       </div>
 
       <div className="space-y-1">
@@ -99,9 +103,7 @@ function RegisterPage() {
           {...register('email')}
           className={inputCls(!!errors.email)}
         />
-        {errors.email && (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-1">
@@ -124,9 +126,7 @@ function RegisterPage() {
             ))}
           </div>
         )}
-        {errors.password && (
-          <p className="text-xs text-destructive">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
       </div>
 
       <div className="space-y-1">
@@ -138,9 +138,7 @@ function RegisterPage() {
           {...register('confirm')}
           className={inputCls(!!errors.confirm)}
         />
-        {errors.confirm && (
-          <p className="text-xs text-destructive">{errors.confirm.message}</p>
-        )}
+        {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
       </div>
 
       <button

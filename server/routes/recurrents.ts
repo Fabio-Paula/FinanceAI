@@ -29,15 +29,16 @@ recurringRoutes.get('/', async (c) => {
 recurringRoutes.post('/', async (c) => {
   const userId = c.get('userId')
   const schema = z.object({
-    description:  z.string().min(1).max(255),
-    type:         z.enum(['income', 'expense']),
-    category_id:  z.string().uuid().optional().nullable(),
+    description: z.string().min(1).max(255),
+    type: z.enum(['income', 'expense']),
+    category_id: z.string().uuid().optional().nullable(),
     day_of_month: z.number().int().min(1).max(31).optional().nullable(),
-    notes:        z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
   })
-  const body   = await c.req.json().catch(() => null)
+  const body = await c.req.json().catch(() => null)
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const item = await prisma.recurringItem.create({
     data: { ...parsed.data, user_id: userId },
@@ -47,34 +48,35 @@ recurringRoutes.post('/', async (c) => {
 
 // PATCH /api/recurrents/:id — update item template
 recurringRoutes.patch('/:id', async (c) => {
-  const userId   = c.get('userId')
+  const userId = c.get('userId')
   const existing = await prisma.recurringItem.findFirst({
     where: { id: c.req.param('id'), user_id: userId },
   })
   if (!existing) return c.json({ error: 'Item não encontrado' }, 404)
 
   const schema = z.object({
-    description:  z.string().min(1).max(255).optional(),
-    type:         z.enum(['income', 'expense']).optional(),
-    category_id:  z.string().uuid().optional().nullable(),
+    description: z.string().min(1).max(255).optional(),
+    type: z.enum(['income', 'expense']).optional(),
+    category_id: z.string().uuid().optional().nullable(),
     day_of_month: z.number().int().min(1).max(31).optional().nullable(),
-    is_active:    z.boolean().optional(),
-    notes:        z.string().optional().nullable(),
+    is_active: z.boolean().optional(),
+    notes: z.string().optional().nullable(),
   })
-  const body   = await c.req.json().catch(() => null)
+  const body = await c.req.json().catch(() => null)
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const item = await prisma.recurringItem.update({
     where: { id: c.req.param('id') },
-    data:  parsed.data,
+    data: parsed.data,
   })
   return c.json({ data: item })
 })
 
 // DELETE /api/recurrents/:id
 recurringRoutes.delete('/:id', async (c) => {
-  const userId   = c.get('userId')
+  const userId = c.get('userId')
   const existing = await prisma.recurringItem.findFirst({
     where: { id: c.req.param('id'), user_id: userId },
   })
@@ -89,14 +91,15 @@ recurringRoutes.put('/:id/entry', async (c) => {
   const userId = c.get('userId')
   const schema = z.object({
     month_ref: z.string().regex(/^\d{4}-\d{2}$/),
-    amount:    z.number().positive(),
-    is_paid:   z.boolean().optional(),
+    amount: z.number().positive(),
+    is_paid: z.boolean().optional(),
     paid_date: z.string().optional().nullable(),
-    notes:     z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
   })
-  const body   = await c.req.json().catch(() => null)
+  const body = await c.req.json().catch(() => null)
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const existing = await prisma.recurringItem.findFirst({
     where: { id: c.req.param('id'), user_id: userId },
@@ -106,21 +109,21 @@ recurringRoutes.put('/:id/entry', async (c) => {
   const monthRef = new Date(`${parsed.data.month_ref}-01T00:00:00.000Z`)
 
   const entry = await prisma.recurringEntry.upsert({
-    where:  { uq_entry_item_month: { item_id: c.req.param('id'), month_ref: monthRef } },
+    where: { uq_entry_item_month: { item_id: c.req.param('id'), month_ref: monthRef } },
     create: {
-      item_id:   c.req.param('id'),
-      user_id:   userId,
+      item_id: c.req.param('id'),
+      user_id: userId,
       month_ref: monthRef,
-      amount:    parsed.data.amount,
-      is_paid:   parsed.data.is_paid ?? false,
+      amount: parsed.data.amount,
+      is_paid: parsed.data.is_paid ?? false,
       paid_date: parsed.data.paid_date ? new Date(parsed.data.paid_date) : null,
-      notes:     parsed.data.notes ?? null,
+      notes: parsed.data.notes ?? null,
     },
     update: {
-      amount:    parsed.data.amount,
-      is_paid:   parsed.data.is_paid ?? false,
+      amount: parsed.data.amount,
+      is_paid: parsed.data.is_paid ?? false,
       paid_date: parsed.data.paid_date ? new Date(parsed.data.paid_date) : null,
-      notes:     parsed.data.notes ?? null,
+      notes: parsed.data.notes ?? null,
     },
   })
   return c.json({ data: entry })
@@ -128,23 +131,23 @@ recurringRoutes.put('/:id/entry', async (c) => {
 
 // PATCH /api/recurrents/:id/entry/:entryId — mark paid/unpaid
 recurringRoutes.patch('/:id/entry/:entryId', async (c) => {
-  const userId   = c.get('userId')
+  const userId = c.get('userId')
   const existing = await prisma.recurringEntry.findFirst({
     where: { id: c.req.param('entryId'), user_id: userId },
   })
   if (!existing) return c.json({ error: 'Lançamento não encontrado' }, 404)
 
-  const body  = await c.req.json().catch(() => null)
+  const body = await c.req.json().catch(() => null)
   const entry = await prisma.recurringEntry.update({
     where: { id: c.req.param('entryId') },
-    data:  { is_paid: body?.is_paid, paid_date: body?.paid_date ? new Date(body.paid_date) : null },
+    data: { is_paid: body?.is_paid, paid_date: body?.paid_date ? new Date(body.paid_date) : null },
   })
   return c.json({ data: entry })
 })
 
 // DELETE /api/recurrents/:id/entry/:entryId — remove entry for a month
 recurringRoutes.delete('/:id/entry/:entryId', async (c) => {
-  const userId   = c.get('userId')
+  const userId = c.get('userId')
   const existing = await prisma.recurringEntry.findFirst({
     where: { id: c.req.param('entryId'), user_id: userId },
   })

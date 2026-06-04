@@ -5,7 +5,13 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { apiGet, apiPut } from '@/lib/api'
@@ -91,22 +97,37 @@ export function SettingsPage() {
           <form onSubmit={saveProfile} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="name" className="text-xs font-normal text-muted-foreground">Nome</Label>
+                <Label htmlFor="name" className="text-xs font-normal text-muted-foreground">
+                  Nome
+                </Label>
                 <Input id="name" defaultValue={user.name ?? 'Demo User'} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="email" className="text-xs font-normal text-muted-foreground">E-mail</Label>
-                <Input id="email" defaultValue={user.email ?? 'demo@entrafy.dev'} disabled className="bg-muted text-muted-foreground" />
+                <Label htmlFor="email" className="text-xs font-normal text-muted-foreground">
+                  E-mail
+                </Label>
+                <Input
+                  id="email"
+                  defaultValue={user.email ?? 'demo@entrafy.dev'}
+                  disabled
+                  className="bg-muted text-muted-foreground"
+                />
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className={cn(
-                'text-xs px-2 py-0.5 rounded-full font-medium',
-                user.plan === 'pro' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-              )}>
+              <span
+                className={cn(
+                  'text-xs px-2 py-0.5 rounded-full font-medium',
+                  user.plan === 'pro'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-muted text-muted-foreground'
+                )}
+              >
                 {user.plan === 'pro' ? '✦ Pro' : 'Free'}
               </span>
-              <Button type="submit" className="h-8 px-4 text-xs">Salvar</Button>
+              <Button type="submit" className="h-8 px-4 text-xs">
+                Salvar
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -121,7 +142,9 @@ export function SettingsPage() {
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm font-medium text-foreground">Provedor de IA</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Modelo usado para categorizar transações</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Modelo usado para categorizar transações
+              </p>
             </div>
             <Select value={aiProvider} onValueChange={(v) => setAiProvider(v as AiProvider)}>
               <SelectTrigger className="w-52">
@@ -146,14 +169,20 @@ export function SettingsPage() {
               <Input
                 ref={apiKeyRef}
                 type="password"
-                placeholder={hasKey ? '••••••••  (deixe em branco para manter)' : apiKeyPlaceholder[aiProvider] ?? 'sua-chave...'}
+                placeholder={
+                  hasKey
+                    ? '••••••••  (deixe em branco para manter)'
+                    : (apiKeyPlaceholder[aiProvider] ?? 'sua-chave...')
+                }
                 className="flex-1 font-mono"
               />
               <Button onClick={saveAiSettings} disabled={savingAi}>
                 {savingAi ? 'Salvando…' : 'Salvar'}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">A chave é criptografada antes de ser armazenada.</p>
+            <p className="text-xs text-muted-foreground">
+              A chave é criptografada antes de ser armazenada.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -167,10 +196,14 @@ export function SettingsPage() {
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm font-medium text-foreground">Modo escuro</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Alterna entre tema claro e escuro</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Alterna entre tema claro e escuro
+              </p>
             </div>
-            <button onClick={() => toggleDark(!darkMode)}
-              className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-background text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            <button
+              onClick={() => toggleDark(!darkMode)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-background text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
               {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               {darkMode ? 'Escuro' : 'Claro'}
             </button>

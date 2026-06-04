@@ -1,5 +1,27 @@
-import { createFileRoute, Outlet, redirect, Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { LayoutDashboard, ArrowLeftRight, Upload, Tags, Settings, LogOut, BrainCircuit, Repeat2, X, ChevronLeft, ChevronRight, CalendarDays, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  Link,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  Upload,
+  Tags,
+  Settings,
+  LogOut,
+  BrainCircuit,
+  Repeat2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -18,13 +40,13 @@ export const Route = createFileRoute('/_app')({
 })
 
 const navItems = [
-  { to: '/dashboard',    label: 'Dashboard',     icon: LayoutDashboard },
-  { to: '/transactions', label: 'Transações',     icon: ArrowLeftRight  },
-  { to: '/imports',      label: 'Importar',       icon: Upload          },
-  { to: '/categories',   label: 'Categorias',     icon: Tags            },
-  { to: '/recorrentes',  label: 'Recorrentes',    icon: Repeat2         },
-  { to: '/ai-rules',     label: 'Regras IA',      icon: BrainCircuit    },
-  { to: '/settings',     label: 'Configurações',  icon: Settings        },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/transactions', label: 'Transações', icon: ArrowLeftRight },
+  { to: '/imports', label: 'Importar', icon: Upload },
+  { to: '/categories', label: 'Categorias', icon: Tags },
+  { to: '/recorrentes', label: 'Recorrentes', icon: Repeat2 },
+  { to: '/ai-rules', label: 'Regras IA', icon: BrainCircuit },
+  { to: '/settings', label: 'Configurações', icon: Settings },
 ]
 
 function useRecurringReviewBanner() {
@@ -41,7 +63,20 @@ function useRecurringReviewBanner() {
   return { visible, dismiss, monthName }
 }
 
-const MONTHS_SHORT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+const MONTHS_SHORT = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
+]
 
 function MonthPicker() {
   const { year, month, monthLabel, prevMonth, nextMonth, isCurrentMonth, isReadOnly } = useMonth()
@@ -106,14 +141,14 @@ function MonthPicker() {
             {/* Year navigation */}
             <div className="flex items-center justify-between mb-3">
               <button
-                onClick={() => setPickerYear(y => y - 1)}
+                onClick={() => setPickerYear((y) => y - 1)}
                 className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span className="text-sm font-semibold text-foreground">{pickerYear}</span>
               <button
-                onClick={() => setPickerYear(y => y + 1)}
+                onClick={() => setPickerYear((y) => y + 1)}
                 disabled={pickerYear >= currentYear}
                 className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
               >
@@ -176,10 +211,12 @@ function MonthPicker() {
 function AppLayout() {
   const location = useLocation()
   const { visible: showBanner, dismiss: dismissBanner, monthName } = useRecurringReviewBanner()
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar-collapsed') === '1')
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('sidebar-collapsed') === '1'
+  )
 
   function toggleSidebar() {
-    setCollapsed(prev => {
+    setCollapsed((prev) => {
       const next = !prev
       localStorage.setItem('sidebar-collapsed', next ? '1' : '0')
       return next
@@ -197,18 +234,24 @@ function AppLayout() {
     <MonthProvider>
       <div className="flex h-screen bg-background text-foreground overflow-hidden">
         {/* Sidebar */}
-        <aside className={cn(
-          'shrink-0 bg-card border-r border-border flex flex-col transition-all duration-200',
-          collapsed ? 'w-[52px]' : 'w-56'
-        )}>
+        <aside
+          className={cn(
+            'shrink-0 bg-card border-r border-border flex flex-col transition-all duration-200',
+            collapsed ? 'w-[52px]' : 'w-56'
+          )}
+        >
           {/* Logo + toggle */}
-          <div className={cn(
-            'h-14 flex items-center border-b border-border',
-            collapsed ? 'justify-center px-0' : 'px-3 justify-between'
-          )}>
+          <div
+            className={cn(
+              'h-14 flex items-center border-b border-border',
+              collapsed ? 'justify-center px-0' : 'px-3 justify-between'
+            )}
+          >
             {!collapsed && (
               <div className="flex items-center gap-2.5 pl-2">
-                <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0">F</div>
+                <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0">
+                  F
+                </div>
                 <span className="font-semibold text-foreground text-sm">Entrafy</span>
               </div>
             )}
@@ -273,7 +316,8 @@ function AppLayout() {
               <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-800 px-5 py-2.5">
                 <Repeat2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <p className="text-sm text-amber-800 dark:text-amber-200 flex-1 capitalize">
-                  Revise os valores recorrentes de <span className="font-medium">{monthName}</span> — confirme ou ajuste os valores para este mês.
+                  Revise os valores recorrentes de <span className="font-medium">{monthName}</span>{' '}
+                  — confirme ou ajuste os valores para este mês.
                 </p>
                 <Link
                   to="/recorrentes"

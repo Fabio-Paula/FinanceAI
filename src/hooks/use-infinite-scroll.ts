@@ -30,7 +30,7 @@ export function useInfiniteScroll({
   isFetchingNextPage,
   rootMargin = '200px',
 }: Options) {
-  const sentinelRef  = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export function useInfiniteScroll({
       ([entry]) => {
         if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage()
       },
-      { root: containerRef.current ?? null, rootMargin },
+      { root: containerRef.current ?? null, rootMargin }
     )
     observer.observe(el)
     return () => observer.disconnect()

@@ -9,22 +9,25 @@
 
 /* ── IBM Plex Sans font imports ───────────────────────────────────────────── */
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-400-normal.woff2") format("woff2");
+  font-family: 'IBM Plex Sans';
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-400-normal.woff2')
+    format('woff2');
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-500-normal.woff2") format("woff2");
+  font-family: 'IBM Plex Sans';
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-500-normal.woff2')
+    format('woff2');
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-600-normal.woff2") format("woff2");
+  font-family: 'IBM Plex Sans';
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.0.8/files/ibm-plex-sans-600-normal.woff2')
+    format('woff2');
   font-weight: 600;
   font-display: swap;
 }
@@ -32,13 +35,13 @@
 /* ── CSS custom properties ─────────────────────────────────────────────────── */
 @layer base {
   html {
-    font-family: "IBM Plex Sans", var(--font-sans), system-ui, sans-serif !important;
+    font-family: 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif !important;
   }
 
   :root {
     /* ── Brand ── */
-    --brand-primary:  26 65% 53%;    /* #D97736 — terracotta */
-    --brand-accent:   27 86% 95%;    /* #FDF2E9 — pale peach */
+    --brand-primary: 26 65% 53%; /* #D97736 — terracotta */
+    --brand-accent: 27 86% 95%; /* #FDF2E9 — pale peach */
 
     /* ════════════════════════════════════════════════════════════════════════
        WARM MINIMALIST — Entrafy Light Mode
@@ -46,66 +49,66 @@
        ════════════════════════════════════════════════════════════════════════ */
 
     /* ── Structure ── */
-    --background:          40 60% 98%;    /* #FDFBF7 — ivory/cream, replaces pure white */
-    --foreground:          30 3% 18%;     /* #2F2E2C — espresso charcoal */
+    --background: 40 60% 98%; /* #FDFBF7 — ivory/cream, replaces pure white */
+    --foreground: 30 3% 18%; /* #2F2E2C — espresso charcoal */
 
-    --card:                0 0% 100%;     /* #FFFFFF — pure white for depth on ivory base */
-    --card-foreground:     30 3% 18%;
+    --card: 0 0% 100%; /* #FFFFFF — pure white for depth on ivory base */
+    --card-foreground: 30 3% 18%;
 
-    --popover:             0 0% 100%;
-    --popover-foreground:  30 3% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 3% 18%;
 
     /* ── Primary action: terracotta ── */
-    --primary:             26 65% 53%;    /* #D97736 */
-    --primary-foreground:  0 0% 100%;
+    --primary: 26 65% 53%; /* #D97736 */
+    --primary-foreground: 0 0% 100%;
 
     /* ── Secondary / Muted surfaces ── */
-    --secondary:           40 30% 96%;    /* Ivory slightly darker than bg */
-    --secondary-foreground:30 3% 18%;
+    --secondary: 40 30% 96%; /* Ivory slightly darker than bg */
+    --secondary-foreground: 30 3% 18%;
 
-    --muted:               40 25% 93%;    /* #F2EFE9 — warm sand */
-    --muted-foreground:    30 4% 44%;     /* #75716B — sepia-gray */
+    --muted: 40 25% 93%; /* #F2EFE9 — warm sand */
+    --muted-foreground: 30 4% 44%; /* #75716B — sepia-gray */
 
     /* ── Accent: active nav state (pale peach bg + terracotta text) ── */
-    --accent:              27 86% 95%;    /* #FDF2E9 */
-    --accent-foreground:   26 65% 53%;    /* #D97736 */
+    --accent: 27 86% 95%; /* #FDF2E9 */
+    --accent-foreground: 26 65% 53%; /* #D97736 */
 
     /* ── Semantic feedback ── */
-    --destructive:         1 62% 58%;     /* #D9534F — muted coral/brick */
+    --destructive: 1 62% 58%; /* #D9534F — muted coral/brick */
     --destructive-foreground: 0 0% 100%;
 
-    --success:             145 28% 42%;   /* #4E8A67 — muted sage green */
-    --success-foreground:  0 0% 100%;
+    --success: 145 28% 42%; /* #4E8A67 — muted sage green */
+    --success-foreground: 0 0% 100%;
 
     /* ── Borders & inputs ── */
-    --border:              40 25% 93%;    /* #F2EFE9 — warm sand divider */
-    --input:               40 25% 93%;
-    --ring:                26 65% 53%;    /* #D97736 */
+    --border: 40 25% 93%; /* #F2EFE9 — warm sand divider */
+    --input: 40 25% 93%;
+    --ring: 26 65% 53%; /* #D97736 */
 
     --radius: 0.5rem;
 
     /* ── Chart / Financial indicator tokens ── */
-    --chart-1: 26 65% 53%;      /* #D97736 — terracotta primary */
-    --chart-2: 145 28% 42%;     /* #4E8A67 — income sage green */
-    --chart-3: 1 62% 58%;       /* #D9534F — expense coral */
-    --chart-4: 38 84% 62%;      /* #F0AD4E — warning mustard */
-    --chart-5: 196 30% 33%;     /* #3B626E — teal slate */
+    --chart-1: 26 65% 53%; /* #D97736 — terracotta primary */
+    --chart-2: 145 28% 42%; /* #4E8A67 — income sage green */
+    --chart-3: 1 62% 58%; /* #D9534F — expense coral */
+    --chart-4: 38 84% 62%; /* #F0AD4E — warning mustard */
+    --chart-5: 196 30% 33%; /* #3B626E — teal slate */
 
     /* ── Financial semantic vars ── */
-    --positive:            145 28% 42%;   /* #4E8A67 — income/revenue */
+    --positive: 145 28% 42%; /* #4E8A67 — income/revenue */
     --positive-foreground: 0 0% 100%;
-    --negative:            1 62% 58%;     /* #D9534F — expense/outflow */
+    --negative: 1 62% 58%; /* #D9534F — expense/outflow */
     --negative-foreground: 0 0% 100%;
-    --warning:             38 84% 62%;    /* #F0AD4E — attention/review */
-    --warning-foreground:  30 3% 18%;
+    --warning: 38 84% 62%; /* #F0AD4E — attention/review */
+    --warning-foreground: 30 3% 18%;
 
     /* ── Nav active state helpers ── */
-    --nav-active-bg:       27 86% 95%;    /* #FDF2E9 */
-    --nav-active-fg:       26 65% 53%;    /* #D97736 */
+    --nav-active-bg: 27 86% 95%; /* #FDF2E9 */
+    --nav-active-fg: 26 65% 53%; /* #D97736 */
 
     /* ── Font variables ── */
-    --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-    --font-mono: "IBM Plex Sans", monospace;
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Sans', monospace;
 
     /* ────────────────────────────────────────────────────────────────────────
        Category colors — LIGHT MODE
@@ -113,103 +116,103 @@
        ──────────────────────────────────────────────────────────────────────── */
 
     /* Alimentação / Mercado — caramel amber */
-    --category-mercado:       #F2D0A8;
-    --category-mercado-fg:    #7A3F12;
-    --category-mercado-muted: #F2D0A840;
+    --category-mercado: #f2d0a8;
+    --category-mercado-fg: #7a3f12;
+    --category-mercado-muted: #f2d0a840;
 
     /* Restaurante — same family as Alimentação */
-    --category-restaurante:   #F2D0A8;
-    --category-restaurante-fg:    #7A3F12;
-    --category-restaurante-muted: #F2D0A840;
+    --category-restaurante: #f2d0a8;
+    --category-restaurante-fg: #7a3f12;
+    --category-restaurante-muted: #f2d0a840;
 
     /* Transporte / Vestuário — teal sky */
-    --category-transporte:    #B4D4E4;
-    --category-transporte-fg: #1E4A5C;
-    --category-transporte-muted: #B4D4E440;
+    --category-transporte: #b4d4e4;
+    --category-transporte-fg: #1e4a5c;
+    --category-transporte-muted: #b4d4e440;
 
     /* Streaming / Assinaturas — amethyst */
-    --category-streaming:     #D0C2EA;
-    --category-streaming-fg:  #4A2A6A;
-    --category-streaming-muted: #D0C2EA40;
+    --category-streaming: #d0c2ea;
+    --category-streaming-fg: #4a2a6a;
+    --category-streaming-muted: #d0c2ea40;
 
     /* Saúde — sage green */
-    --category-saude:         #B2DEC0;
-    --category-saude-fg:      #1A5230;
-    --category-saude-muted:   #B2DEC040;
+    --category-saude: #b2dec0;
+    --category-saude-fg: #1a5230;
+    --category-saude-muted: #b2dec040;
 
     /* Farmácia — same family as Saúde */
-    --category-farmacia:      #B2DEC0;
-    --category-farmacia-fg:   #1A5230;
-    --category-farmacia-muted:#B2DEC040;
+    --category-farmacia: #b2dec0;
+    --category-farmacia-fg: #1a5230;
+    --category-farmacia-muted: #b2dec040;
 
     /* Lazer — guava rose */
-    --category-lazer:         #F0BAD0;
-    --category-lazer-fg:      #7A2845;
-    --category-lazer-muted:   #F0BAD040;
+    --category-lazer: #f0bad0;
+    --category-lazer-fg: #7a2845;
+    --category-lazer-muted: #f0bad040;
 
     /* Assinaturas — amethyst */
-    --category-assinaturas:   #D0C2EA;
-    --category-assinaturas-fg:#4A2A6A;
-    --category-assinaturas-muted: #D0C2EA40;
+    --category-assinaturas: #d0c2ea;
+    --category-assinaturas-fg: #4a2a6a;
+    --category-assinaturas-muted: #d0c2ea40;
 
     /* Combustível — warm sand */
-    --category-combustivel:   #CCCABE;
-    --category-combustivel-fg:#3D3A35;
-    --category-combustivel-muted: #CCCABE40;
+    --category-combustivel: #cccabe;
+    --category-combustivel-fg: #3d3a35;
+    --category-combustivel-muted: #cccabe40;
 
     /* Educação — amethyst */
-    --category-educacao:      #D0C2EA;
-    --category-educacao-fg:   #4A2A6A;
-    --category-educacao-muted:#D0C2EA40;
+    --category-educacao: #d0c2ea;
+    --category-educacao-fg: #4a2a6a;
+    --category-educacao-muted: #d0c2ea40;
 
     /* Salário — sage green (income) */
-    --category-salario:       #B2DEC0;
-    --category-salario-fg:    #1A5230;
-    --category-salario-muted: #B2DEC040;
+    --category-salario: #b2dec0;
+    --category-salario-fg: #1a5230;
+    --category-salario-muted: #b2dec040;
 
     /* Investimentos — teal sky */
-    --category-investimentos:  #B4D4E4;
-    --category-investimentos-fg: #1E4A5C;
-    --category-investimentos-muted: #B4D4E440;
+    --category-investimentos: #b4d4e4;
+    --category-investimentos-fg: #1e4a5c;
+    --category-investimentos-muted: #b4d4e440;
 
     /* Outros — warm sand */
-    --category-outros:        #CCCABE;
-    --category-outros-fg:     #3D3A35;
-    --category-outros-muted:  #CCCABE40;
+    --category-outros: #cccabe;
+    --category-outros-fg: #3d3a35;
+    --category-outros-muted: #cccabe40;
   }
 
   /* ── Dark mode overrides ─────────────────────────────────────────────────── */
   .dark {
-    --background:          0 0% 9%;
-    --foreground:          0 0% 95%;
+    --background: 0 0% 9%;
+    --foreground: 0 0% 95%;
 
-    --card:                0 0% 12%;
-    --card-foreground:     0 0% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover:             0 0% 12%;
-    --popover-foreground:  0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary:             265 70% 62%;   /* violet/purple for dark mode */
-    --primary-foreground:  0 0% 100%;
+    --primary: 265 70% 62%; /* violet/purple for dark mode */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary:           0 0% 17%;
-    --secondary-foreground:0 0% 95%;
+    --secondary: 0 0% 17%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted:               0 0% 17%;
-    --muted-foreground:    0 0% 53%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 53%;
 
-    --accent:              265 70% 62%;
-    --accent-foreground:   0 0% 100%;
+    --accent: 265 70% 62%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive:         0 63% 55%;
+    --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success:             142 71% 40%;
-    --success-foreground:  0 0% 100%;
+    --success: 142 71% 40%;
+    --success-foreground: 0 0% 100%;
 
-    --border:              0 0% 20%;
-    --input:               0 0% 20%;
-    --ring:                265 70% 62%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 265 70% 62%;
 
     /* ── Chart tokens (dark) ── */
     --chart-1: 265 70% 62%;
@@ -222,57 +225,57 @@
        Category colors — DARK MODE
        Slightly lighter / more saturated to pop on dark backgrounds
        ──────────────────────────────────────────────────────────────────────── */
-    --category-mercado:       #34D469;
-    --category-mercado-fg:    #052e16;
+    --category-mercado: #34d469;
+    --category-mercado-fg: #052e16;
     --category-mercado-muted: #34d46926;
 
-    --category-restaurante:   #FB6F3B;
-    --category-restaurante-fg:    #431407;
+    --category-restaurante: #fb6f3b;
+    --category-restaurante-fg: #431407;
     --category-restaurante-muted: #fb6f3b26;
 
-    --category-transporte:    #60A5FA;
+    --category-transporte: #60a5fa;
     --category-transporte-fg: #1e3a8a;
     --category-transporte-muted: #60a5fa26;
 
-    --category-streaming:     #A78BFA;
-    --category-streaming-fg:  #2e1065;
+    --category-streaming: #a78bfa;
+    --category-streaming-fg: #2e1065;
     --category-streaming-muted: #a78bfa26;
 
-    --category-saude:         #22D3EE;
-    --category-saude-fg:      #164e63;
-    --category-saude-muted:   #22d3ee26;
+    --category-saude: #22d3ee;
+    --category-saude-fg: #164e63;
+    --category-saude-muted: #22d3ee26;
 
-    --category-farmacia:      #2DD4BF;
-    --category-farmacia-fg:   #134e4a;
-    --category-farmacia-muted:#2dd4bf26;
+    --category-farmacia: #2dd4bf;
+    --category-farmacia-fg: #134e4a;
+    --category-farmacia-muted: #2dd4bf26;
 
-    --category-lazer:         #F472B6;
-    --category-lazer-fg:      #500724;
-    --category-lazer-muted:   #f472b626;
+    --category-lazer: #f472b6;
+    --category-lazer-fg: #500724;
+    --category-lazer-muted: #f472b626;
 
-    --category-assinaturas:   #C084FC;
-    --category-assinaturas-fg:#3b0764;
+    --category-assinaturas: #c084fc;
+    --category-assinaturas-fg: #3b0764;
     --category-assinaturas-muted: #c084fc26;
 
-    --category-combustivel:   #FCD34D;
-    --category-combustivel-fg:#451a03;
+    --category-combustivel: #fcd34d;
+    --category-combustivel-fg: #451a03;
     --category-combustivel-muted: #fcd34d26;
 
-    --category-educacao:      #93C5FD;
-    --category-educacao-fg:   #1e3a8a;
-    --category-educacao-muted:#93c5fd26;
+    --category-educacao: #93c5fd;
+    --category-educacao-fg: #1e3a8a;
+    --category-educacao-muted: #93c5fd26;
 
-    --category-salario:       #4ADE80;
-    --category-salario-fg:    #052e16;
+    --category-salario: #4ade80;
+    --category-salario-fg: #052e16;
     --category-salario-muted: #4ade8026;
 
-    --category-investimentos:  #60A5FA;
+    --category-investimentos: #60a5fa;
     --category-investimentos-fg: #1e3a8a;
     --category-investimentos-muted: #60a5fa26;
 
-    --category-outros:        #94A3B8;
-    --category-outros-fg:     #1e293b;
-    --category-outros-muted:  #94a3b826;
+    --category-outros: #94a3b8;
+    --category-outros-fg: #1e293b;
+    --category-outros-muted: #94a3b826;
   }
 
   /* ── Base resets ─────────────────────────────────────────────────────────── */
@@ -327,8 +330,8 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "IBM Plex Sans", var(--font-sans), system-ui, sans-serif !important;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif !important;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   /* Monetary values always use mono font */

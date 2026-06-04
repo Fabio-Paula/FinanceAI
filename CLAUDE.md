@@ -14,6 +14,7 @@ The Vite dev server proxies `/api` → `http://localhost:3001`, so the frontend 
 ## Commands
 
 ### Quick Commands
+
 - `/commit` — Analyze staged git changes and create a smart conventional commit
 - `/commit-help` — Show help for the commit command
 
@@ -41,6 +42,7 @@ npx prisma db seed
 ```
 
 > After `npx prisma migrate dev`, manually add the GIN index for tag searches:
+>
 > ```sql
 > CREATE INDEX idx_tx_tags_gin ON transactions USING GIN (tags);
 > ```
@@ -71,6 +73,7 @@ npx prisma db seed
 Five models: `User`, `Import`, `Transaction`, `Category`, `AiRule`.
 
 Key design decisions:
+
 - `Transaction.hash` is `SHA-256(userId|date|description|amount)` — unique per user, used for dedup on import.
 - `Transaction.description_normalized` is the lowercased, NFD-stripped version used for search.
 - `Category.user_id = NULL` means a system-global category; user-owned categories have `user_id` set.
@@ -79,17 +82,18 @@ Key design decisions:
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `JWT_SECRET` | Yes | Signs/verifies auth tokens (default falls back to `dev-secret-change-in-production`) |
-| `PORT` | No | API port (default `3001`) |
+| Variable       | Required | Description                                                                          |
+| -------------- | -------- | ------------------------------------------------------------------------------------ |
+| `DATABASE_URL` | Yes      | PostgreSQL connection string                                                         |
+| `JWT_SECRET`   | Yes      | Signs/verifies auth tokens (default falls back to `dev-secret-change-in-production`) |
+| `PORT`         | No       | API port (default `3001`)                                                            |
 
 ## Slash Commands
 
 This project includes custom slash commands for quick workflows:
 
 ### `/commit`
+
 **Quick Smart Commit** — Analyze staged git changes and create a conventional commit automatically.
 
 ```bash
@@ -100,6 +104,7 @@ git add src/components/Button.tsx
 ```
 
 **How it works:**
+
 1. Analyzes `git diff --cached`
 2. Detects scope (frontend, backend, database, etc.)
 3. Classifies change type (feat, fix, style, refactor, etc.)
@@ -108,6 +113,7 @@ git add src/components/Button.tsx
 6. Creates commit automatically on confirmation
 
 **Installed skills:**
+
 - `git-smart-commit` — Full skill with detailed options
 - `commit` — Quick `/commit` command shorthand
 

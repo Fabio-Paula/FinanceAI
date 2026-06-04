@@ -22,7 +22,18 @@ const txSchema = z.object({
 // Offset mode: pass `page`/`pageSize` → returns { data, total, page, pageSize, totalPages }
 transactionRoutes.get('/', async (c) => {
   const userId = c.get('userId')
-  const { page = '1', pageSize = '20', type, category_id, from, to, search, unconfirmed, cursor, limit } = c.req.query()
+  const {
+    page = '1',
+    pageSize = '20',
+    type,
+    category_id,
+    from,
+    to,
+    search,
+    unconfirmed,
+    cursor,
+    limit,
+  } = c.req.query()
 
   const where: Record<string, unknown> = { user_id: userId }
   if (type) where.type = type
@@ -91,19 +102,26 @@ transactionRoutes.post('/', async (c) => {
   const userId = c.get('userId')
   const body = await c.req.json().catch(() => null)
   const parsed = txSchema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const { createHash } = await import('crypto')
   const hash = createHash('sha256')
-    .update(`${userId}|${parsed.data.date}|${parsed.data.description.toLowerCase().trim()}|${parsed.data.amount}`)
-    .digest('hex').slice(0, 64)
+    .update(
+      `${userId}|${parsed.data.date}|${parsed.data.description.toLowerCase().trim()}|${parsed.data.amount}`
+    )
+    .digest('hex')
+    .slice(0, 64)
 
   const tx = await prisma.transaction.create({
     data: {
       user_id: userId,
       date: new Date(parsed.data.date),
       description: parsed.data.description,
-      description_normalized: parsed.data.description.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''),
+      description_normalized: parsed.data.description
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, ''),
       amount: parsed.data.amount,
       type: parsed.data.type,
       category_id: parsed.data.category_id ?? null,
@@ -120,12 +138,15 @@ transactionRoutes.post('/', async (c) => {
 // PATCH /api/transactions/:id
 transactionRoutes.patch('/:id', async (c) => {
   const userId = c.get('userId')
-  const existing = await prisma.transaction.findFirst({ where: { id: c.req.param('id'), user_id: userId } })
+  const existing = await prisma.transaction.findFirst({
+    where: { id: c.req.param('id'), user_id: userId },
+  })
   if (!existing) return c.json({ error: 'Transação não encontrada' }, 404)
 
   const body = await c.req.json().catch(() => null)
   const parsed = txSchema.partial().safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const tx = await prisma.transaction.update({
     where: { id: c.req.param('id') },
@@ -141,7 +162,9 @@ transactionRoutes.patch('/:id', async (c) => {
 // DELETE /api/transactions/:id
 transactionRoutes.delete('/:id', async (c) => {
   const userId = c.get('userId')
-  const existing = await prisma.transaction.findFirst({ where: { id: c.req.param('id'), user_id: userId } })
+  const existing = await prisma.transaction.findFirst({
+    where: { id: c.req.param('id'), user_id: userId },
+  })
   if (!existing) return c.json({ error: 'Transação não encontrada' }, 404)
   await prisma.transaction.delete({ where: { id: c.req.param('id') } })
   return c.json({ message: 'Transação removida' })

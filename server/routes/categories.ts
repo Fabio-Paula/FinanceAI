@@ -29,14 +29,18 @@ categoryRoutes.post('/', async (c) => {
   const schema = z.object({
     name: z.string().min(1),
     icon: z.string().optional(),
-    color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+    color: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/)
+      .optional(),
     type: z.enum(['income', 'expense', 'both']).default('both'),
     parent_id: z.string().uuid().optional().nullable(),
     sort_order: z.number().int().optional(),
   })
   const body = await c.req.json().catch(() => null)
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const cat = await prisma.category.create({
     data: { ...parsed.data, user_id: userId, is_system: false },
@@ -75,7 +79,10 @@ categoryRoutes.delete('/:id', async (c) => {
     },
   })
   if (txCount > 0)
-    return c.json({ error: `Não é possível excluir: ${txCount} transação(ões) vinculada(s) a esta categoria.` }, 409)
+    return c.json(
+      { error: `Não é possível excluir: ${txCount} transação(ões) vinculada(s) a esta categoria.` },
+      409
+    )
 
   await prisma.category.delete({ where: { id: c.req.param('id') } })
   return c.json({ message: 'Categoria removida' })

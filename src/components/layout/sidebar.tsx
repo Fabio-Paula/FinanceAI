@@ -1,19 +1,25 @@
-import { Link, useMatchRoute } from "@tanstack/react-router";
+import { Link, useMatchRoute } from '@tanstack/react-router'
 import {
-  LayoutDashboard, ArrowDownUp, Upload, Tag, Settings, TrendingUp, LogOut,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+  LayoutDashboard,
+  ArrowDownUp,
+  Upload,
+  Tag,
+  Settings,
+  TrendingUp,
+  LogOut,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const NAV = [
-  { label: "Dashboard",    to: "/",             icon: LayoutDashboard },
-  { label: "Transações",   to: "/transactions", icon: ArrowDownUp },
-  { label: "Importar",     to: "/import",       icon: Upload },
-  { label: "Categorias",   to: "/categories",   icon: Tag },
-  { label: "Configurações",to: "/settings",     icon: Settings },
-] as const;
+  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+  { label: 'Transações', to: '/transactions', icon: ArrowDownUp },
+  { label: 'Importar', to: '/import', icon: Upload },
+  { label: 'Categorias', to: '/categories', icon: Tag },
+  { label: 'Configurações', to: '/settings', icon: Settings },
+] as const
 
 export function Sidebar() {
-  const matchRoute = useMatchRoute();
+  const matchRoute = useMatchRoute()
 
   return (
     <aside className="w-56 shrink-0 border-r border-border bg-card flex flex-col h-screen sticky top-0">
@@ -26,22 +32,22 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-0.5">
         {NAV.map(({ label, to, icon: Icon }) => {
-          const active = !!matchRoute({ to, fuzzy: to === "/" ? false : true });
+          const active = !!matchRoute({ to, fuzzy: to === '/' ? false : true })
           return (
             <Link
               key={to}
               to={to}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
                 active
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
               {label}
             </Link>
-          );
+          )
         })}
       </nav>
 
@@ -59,5 +65,5 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
-  );
+  )
 }

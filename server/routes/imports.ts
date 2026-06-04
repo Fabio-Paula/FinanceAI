@@ -68,9 +68,12 @@ importRoutes.post('/', async (c) => {
     select: { id: true, filename: true, created_at: true },
   })
   if (existing) {
-    return c.json({
-      error: `Este arquivo já foi importado anteriormente (${existing.filename}, ${new Date(existing.created_at).toLocaleDateString('pt-BR')}).`,
-    }, 409)
+    return c.json(
+      {
+        error: `Este arquivo já foi importado anteriormente (${existing.filename}, ${new Date(existing.created_at).toLocaleDateString('pt-BR')}).`,
+      },
+      409
+    )
   }
 
   const imp = await prisma.import.create({
@@ -103,12 +106,16 @@ importRoutes.post('/', async (c) => {
     const date = parsedDate
 
     const amount = parseAmount(rawAmount)
-    if (amount === 0) { skipped++; continue }
+    if (amount === 0) {
+      skipped++
+      continue
+    }
 
     // Fatura/extrato: tudo é despesa por padrão.
     // Exceções identificadas pela descrição: estornos, cashback, reembolsos, PIX/TED recebidos, pagamento recebido.
     // A coluna "tipo" do CSV (se mapeada) pode confirmar crédito explicitamente.
-    const INCOME_DESC = /estorno|cashback|cash\s*back|reembolso|devolu[cç][aã]o|crédito\s+em\s+conta|pix\s+recebido|ted\s+recebida|pagamento\s+recebido|transfer[eê]ncia\s+recebida|depósito\s+recebido/i
+    const INCOME_DESC =
+      /estorno|cashback|cash\s*back|reembolso|devolu[cç][aã]o|crédito\s+em\s+conta|pix\s+recebido|ted\s+recebida|pagamento\s+recebido|transfer[eê]ncia\s+recebida|depósito\s+recebido/i
     let type: 'income' | 'expense'
     if (rawType && /cr[eé]d|receb|entrada|depósito/i.test(rawType)) {
       type = 'income'
@@ -120,7 +127,9 @@ importRoutes.post('/', async (c) => {
 
     const absAmount = Math.abs(amount).toFixed(2)
     const hash = createHash('sha256')
-      .update(`${userId}|${date.toISOString().split('T')[0]}|${rawDesc.toLowerCase().trim()}|${absAmount}`)
+      .update(
+        `${userId}|${date.toISOString().split('T')[0]}|${rawDesc.toLowerCase().trim()}|${absAmount}`
+      )
       .digest('hex')
       .slice(0, 64)
 
@@ -160,16 +169,19 @@ importRoutes.post('/', async (c) => {
     },
   })
 
-  return c.json({
-    data: {
-      import_id: imp.id,
-      total_rows: rows.length,
-      created,
-      skipped,
-      errors: errors.length,
-      months: Array.from(months).sort(),
+  return c.json(
+    {
+      data: {
+        import_id: imp.id,
+        total_rows: rows.length,
+        created,
+        skipped,
+        errors: errors.length,
+        months: Array.from(months).sort(),
+      },
     },
-  }, 201)
+    201
+  )
 })
 
 // DELETE /api/imports/:id — remove import and all its transactions

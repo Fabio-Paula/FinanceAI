@@ -3,11 +3,11 @@ import { useSearch, useNavigate } from '@tanstack/react-router'
 
 interface MonthContextValue {
   year: number
-  month: number          // 0-indexed (Jan = 0)
+  month: number // 0-indexed (Jan = 0)
   setYear: (y: number) => void
   setMonth: (m: number) => void
-  monthKey: string       // "2026-05"
-  monthLabel: string     // "maio de 2026"
+  monthKey: string // "2026-05"
+  monthLabel: string // "maio de 2026"
   prevMonth: () => void
   nextMonth: () => void
   isCurrentMonth: boolean
@@ -55,19 +55,27 @@ export function MonthProvider({ children }: { children: React.ReactNode }) {
     else goTo(year, month + 1)
   }
 
-  const monthKey   = `${year}-${String(month + 1).padStart(2, '0')}`
-  const monthLabel = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
+  const monthLabel = new Date(year, month, 1).toLocaleDateString('pt-BR', {
+    month: 'long',
+    year: 'numeric',
+  })
 
   return (
-    <MonthContext.Provider value={{
-      year, month,
-      setYear: (y) => goTo(y, month),
-      setMonth: (m) => goTo(year, m),
-      monthKey, monthLabel,
-      prevMonth, nextMonth,
-      isCurrentMonth,
-      isReadOnly: !isCurrentMonth,
-    }}>
+    <MonthContext.Provider
+      value={{
+        year,
+        month,
+        setYear: (y) => goTo(y, month),
+        setMonth: (m) => goTo(year, m),
+        monthKey,
+        monthLabel,
+        prevMonth,
+        nextMonth,
+        isCurrentMonth,
+        isReadOnly: !isCurrentMonth,
+      }}
+    >
       {children}
     </MonthContext.Provider>
   )

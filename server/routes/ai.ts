@@ -3,11 +3,7 @@ import { z } from 'zod'
 import { prisma } from '../../src/lib/prisma.js'
 import { authMiddleware } from '../middleware/auth.js'
 import { encryptKey, decryptKey } from '../lib/crypto.js'
-import {
-  categorizeWithGemini,
-  categorizeWithOpenAI,
-  categorizeWithAnthropic,
-} from '../lib/ai.js'
+import { categorizeWithGemini, categorizeWithOpenAI, categorizeWithAnthropic } from '../lib/ai.js'
 
 export const aiRoutes = new Hono()
 aiRoutes.use('*', authMiddleware)
@@ -36,7 +32,8 @@ aiRoutes.put('/settings', async (c) => {
   })
 
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const updateData: { ai_provider: string; ai_api_key_enc?: string } = {
     ai_provider: parsed.data.provider,
@@ -63,7 +60,8 @@ aiRoutes.post('/categorize', async (c) => {
   })
 
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -100,8 +98,10 @@ aiRoutes.post('/categorize', async (c) => {
       return c.json({ error: 'Provedor não suportado' }, 400)
     }
 
-    if (!categories.find(cat => cat.id === result.category_id)) {
-      const byName = categories.find(cat => cat.name.toLowerCase() === result.category_name.toLowerCase())
+    if (!categories.find((cat) => cat.id === result.category_id)) {
+      const byName = categories.find(
+        (cat) => cat.name.toLowerCase() === result.category_name.toLowerCase()
+      )
       if (byName) result.category_id = byName.id
     }
 

@@ -19,7 +19,8 @@ export function formatCurrency(value: number | string): string {
 
 /** Format an ISO date string as DD/MM/YYYY */
 export function formatDate(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date + (date.includes('T') ? '' : 'T12:00:00')) : date
+  const d =
+    typeof date === 'string' ? new Date(date + (date.includes('T') ? '' : 'T12:00:00')) : date
   return d.toLocaleDateString('pt-BR')
 }
 

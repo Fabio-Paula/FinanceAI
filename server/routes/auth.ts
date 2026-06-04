@@ -17,7 +17,8 @@ const JWT_EXPIRES = '7d'
 authRoutes.post('/login', async (c) => {
   const body = await c.req.json().catch(() => null)
   const parsed = loginSchema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const { email, password } = parsed.data
   const user = await prisma.user.findUnique({ where: { email } })
@@ -46,7 +47,8 @@ authRoutes.post('/register', async (c) => {
   })
   const body = await c.req.json().catch(() => null)
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
+  if (!parsed.success)
+    return c.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, 400)
 
   const { email, password, name } = parsed.data
   const exists = await prisma.user.findUnique({ where: { email } })

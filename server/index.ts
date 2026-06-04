@@ -17,12 +17,15 @@ const app = new Hono()
 // ── Middleware global ────────────────────────────────────────────────────────
 app.use('*', logger())
 app.use('*', prettyJSON())
-app.use('*', cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true,
-}))
+app.use(
+  '*',
+  cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+)
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))

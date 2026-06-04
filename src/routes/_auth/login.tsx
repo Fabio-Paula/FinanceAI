@@ -8,10 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const schema = z.object({
-  email: z
-    .string()
-    .min(1, 'E-mail é obrigatório')
-    .email('E-mail inválido'),
+  email: z.string().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
   password: z
     .string()
     .min(1, 'Senha é obrigatória')
@@ -51,7 +48,11 @@ function LoginPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 bg-card border border-border rounded-lg p-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="space-y-4 bg-card border border-border rounded-lg p-6"
+    >
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -61,9 +62,7 @@ function LoginPage() {
           {...register('email')}
           className={errors.email ? 'border-destructive focus-visible:ring-destructive/40' : ''}
         />
-        {errors.email && (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-1.5">
@@ -75,18 +74,14 @@ function LoginPage() {
           {...register('password')}
           className={errors.password ? 'border-destructive focus-visible:ring-destructive/40' : ''}
         />
-        {errors.password && (
-          <p className="text-xs text-destructive">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
       </div>
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Entrando…' : 'Entrar'}
       </Button>
 
-      <p className="text-xs text-center text-muted-foreground">
-        Demo: demo@entrafy.dev / demo123
-      </p>
+      <p className="text-xs text-center text-muted-foreground">Demo: demo@entrafy.dev / demo123</p>
     </form>
   )
 }

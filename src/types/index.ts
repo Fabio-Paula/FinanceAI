@@ -162,7 +162,7 @@ export interface CategoryBreakdown {
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export interface AuthTokenPayload {
-  sub: string        // user id
+  sub: string // user id
   email: string
   name: string
   plan: Plan
