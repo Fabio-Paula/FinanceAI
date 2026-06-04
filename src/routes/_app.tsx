@@ -1,12 +1,4 @@
-import {
-  createFileRoute,
-  Outlet,
-  redirect,
-  Link,
-  useLocation,
-  useNavigate,
-  useSearch,
-} from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, Link, useLocation } from '@tanstack/react-router'
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -80,32 +72,44 @@ const MONTHS_SHORT = [
 ]
 
 function MonthPicker() {
-  const { year, month, monthLabel, prevMonth, nextMonth, isCurrentMonth, isReadOnly } = useMonth()
-  const navigate = useNavigate({ from: '/_app' })
-  const currentSearch = useSearch({ from: '/_app' })
+  const { year, month, monthLabel, isCurrentMonth, isReadOnly } = useMonth()
+  const navigate = Route.useNavigate()
   const [open, setOpen] = useState(false)
   const [pickerYear, setPickerYear] = useState(year)
 
   const now = new Date()
   const currentYear = now.getFullYear()
   const currentMonth = now.getMonth()
+  const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   function handleOpen(isOpen: boolean) {
     if (isOpen) setPickerYear(year)
     setOpen(isOpen)
   }
 
+  function goTo(y: number, m: number) {
+    const key = `${y}-${String(m + 1).padStart(2, '0')}`
+    navigate({ search: { month: key === currentKey ? undefined : key } })
+  }
+
+  function prevMonth() {
+    if (month === 0) goTo(year - 1, 11)
+    else goTo(year, month - 1)
+  }
+
+  function nextMonth() {
+    if (isCurrentMonth) return
+    if (month === 11) goTo(year + 1, 0)
+    else goTo(year, month + 1)
+  }
+
   function selectMonth(m: number) {
-    const key = `${pickerYear}-${String(m + 1).padStart(2, '0')}`
-    const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-    navigate({
-      search: { ...currentSearch, month: key === nowKey ? undefined : key },
-    })
+    goTo(pickerYear, m)
     setOpen(false)
   }
 
   function goToToday() {
-    navigate({ search: { ...currentSearch, month: undefined } })
+    navigate({ search: { month: undefined } })
   }
 
   function isMonthDisabled(y: number, m: number) {
@@ -209,7 +213,7 @@ function MonthPicker() {
 
 function AppLayout() {
   const location = useLocation()
-  const currentSearch = useSearch({ from: '/_app' })
+  const currentSearch = Route.useSearch()
   const { visible: showBanner, dismiss: dismissBanner, monthName } = useRecurringReviewBanner()
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem('sidebar-collapsed') === '1'
