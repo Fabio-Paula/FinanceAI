@@ -1,5 +1,5 @@
 // =============================================================================
-// FinanceAI — prisma/seed.ts
+// Entrafy — prisma/seed.ts
 // npx prisma db seed
 // =============================================================================
 
@@ -33,7 +33,7 @@ function d(dateStr: string): Date {
 // =============================================================================
 
 async function main() {
-  console.log('🌱 Iniciando seed do FinanceAI...\n')
+  console.log('🌱 Iniciando seed do Entrafy...\n')
 
   // ---------------------------------------------------------------------------
   // 1. USUÁRIO DE TESTE
@@ -44,11 +44,11 @@ async function main() {
   const userId = randomUUID()
 
   const user = await prisma.user.upsert({
-    where: { email: 'demo@financeai.dev' },
+    where: { email: 'demo@entrafy.dev' },
     update: {},
     create: {
       id: userId,
-      email: 'demo@financeai.dev',
+      email: 'demo@entrafy.dev',
       password_hash: passwordHash,
       name: 'Demo User',
       plan: Plan.pro,
@@ -301,9 +301,9 @@ async function main() {
   })
 
   console.log('\n═══════════════════════════════════════════════')
-  console.log('  FinanceAI — Seed concluído com sucesso!')
+  console.log('  Entrafy — Seed concluído com sucesso!')
   console.log('═══════════════════════════════════════════════')
-  console.log(`  📧 Login:       demo@financeai.dev`)
+  console.log(`  📧 Login:       demo@entrafy.dev`)
   console.log(`  🔑 Senha:       demo123`)
   console.log(`  💳 Transações:  ${txTotal}`)
   console.log(`  🗂️  Categorias:  ${catTotal} (sistema)`)

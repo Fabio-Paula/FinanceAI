@@ -1,2 +1,2 @@
-# FinanceAI
+# Entrafy
  

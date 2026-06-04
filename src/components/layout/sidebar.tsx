@@ -20,7 +20,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2 px-4 h-14 border-b border-border">
         <TrendingUp className="h-5 w-5 text-primary" />
-        <span className="font-semibold text-sm text-foreground tracking-tight">FinanceAI</span>
+        <span className="font-semibold text-sm text-foreground tracking-tight">Entrafy</span>
       </div>
 
       {/* Nav */}
@@ -53,7 +53,7 @@ export function Sidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">Fabio</p>
-            <p className="text-xs text-muted-foreground truncate">demo@financeai.dev</p>
+            <p className="text-xs text-muted-foreground truncate">demo@entrafy.dev</p>
           </div>
           <LogOut className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>

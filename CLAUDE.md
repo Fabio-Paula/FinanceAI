@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**FinanceAI** is a personal finance management app with AI-assisted transaction categorization. It has two processes that must run simultaneously:
+**Entrafy** is a personal finance management app with AI-assisted transaction categorization. It has two processes that must run simultaneously:
 
 - **Frontend**: React + Vite + TanStack Router (port 5173)
 - **Backend API**: Hono on Node.js (port 3001)
@@ -30,7 +30,7 @@ npm run server
 
 # Database
 npx prisma migrate dev --name <name>   # apply schema changes
-npx prisma db seed                     # seed with demo data (demo@financeai.dev / demo123)
+npx prisma db seed                     # seed with demo data (demo@entrafy.dev / demo123)
 npx prisma studio                      # GUI to inspect DB
 npx prisma migrate status              # check migration state
 

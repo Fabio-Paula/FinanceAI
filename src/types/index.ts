@@ -1,8 +1,9 @@
 // =============================================================================
-// FinanceAI — tipos globais
+// Entrafy — tipos globais
 // =============================================================================
 
 export type Plan = 'free' | 'pro'
+export type AiProvider = 'openai' | 'anthropic' | 'google'
 export type TransactionType = 'income' | 'expense'
 export type CategoryType = 'income' | 'expense' | 'both'
 export type ImportStatus = 'pending' | 'processing' | 'done' | 'error'
@@ -15,7 +16,7 @@ export interface User {
   email: string
   name: string
   plan: Plan
-  ai_provider?: string | null
+  ai_provider?: AiProvider | null
   created_at: string
   updated_at: string
 }
@@ -129,6 +130,12 @@ export interface PaginatedResponse<T> {
   page: number
   pageSize: number
   totalPages: number
+}
+
+export interface CursorPage<T> {
+  data: T[]
+  nextCursor: string | null
+  hasMore: boolean
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────

@@ -40,20 +40,26 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       ),
   })
 
+  function invalidateAll() {
+    qc.invalidateQueries({ queryKey: ['transactions'] })
+    qc.invalidateQueries({ queryKey: ['transactions-infinite'] })
+    qc.invalidateQueries({ queryKey: ['dashboard-summary'] })
+  }
+
   const addMut = useMutation({
     mutationFn: (input: TxInput) => apiPost<{ data: Transaction }>('/api/transactions', input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: invalidateAll,
   })
 
   const updateMut = useMutation({
     mutationFn: ({ id, patch }: { id: string; patch: Partial<TxInput> }) =>
       apiPatch<{ data: Transaction }>(`/api/transactions/${id}`, patch),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: invalidateAll,
   })
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => apiDelete(`/api/transactions/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: invalidateAll,
   })
 
   return (

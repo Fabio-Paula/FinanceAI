@@ -31,7 +31,7 @@ function LoginPage() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: 'onBlur',
-    defaultValues: { email: 'demo@financeai.dev', password: 'demo123' },
+    defaultValues: { email: 'demo@entrafy.dev', password: 'demo123' },
   })
 
   async function onSubmit(data: FormData) {
@@ -85,7 +85,7 @@ function LoginPage() {
       </Button>
 
       <p className="text-xs text-center text-muted-foreground">
-        Demo: demo@financeai.dev / demo123
+        Demo: demo@entrafy.dev / demo123
       </p>
     </form>
   )

@@ -10,6 +10,7 @@ import { categoryRoutes } from './routes/categories.js'
 import { importRoutes } from './routes/imports.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { recurringRoutes } from './routes/recurrents.js'
+import { aiRoutes } from './routes/ai.js'
 
 const app = new Hono()
 
@@ -33,6 +34,7 @@ app.route('/api/categories', categoryRoutes)
 app.route('/api/imports', importRoutes)
 app.route('/api/dashboard', dashboardRoutes)
 app.route('/api/recurrents', recurringRoutes)
+app.route('/api/ai', aiRoutes)
 
 // ── 404 ──────────────────────────────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Rota não encontrada' }, 404))
@@ -44,7 +46,7 @@ app.onError((err, c) => {
 const PORT = Number(process.env.PORT ?? 3001)
 
 serve({ fetch: app.fetch, port: PORT }, () => {
-  console.log(`🚀 FinanceAI API rodando em http://localhost:${PORT}`)
+  console.log(`🚀 Entrafy API rodando em http://localhost:${PORT}`)
 })
 
 export default app

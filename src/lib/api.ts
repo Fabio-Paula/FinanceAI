@@ -24,6 +24,17 @@ export async function apiPost<T = unknown>(url: string, body: unknown): Promise<
   return res.json()
 }
 
+export async function apiPut<T = unknown>(url: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${url}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+    body: JSON.stringify(body),
+  })
+  if (res.status === 401) { window.location.href = '/login'; throw new Error('Não autorizado') }
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as { error?: string }).error ?? 'Erro') }
+  return res.json()
+}
+
 export async function apiPatch<T = unknown>(url: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${url}`, {
     method: 'PATCH',

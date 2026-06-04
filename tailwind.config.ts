@@ -84,7 +84,7 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // ── FinanceAI brand colors (raw, for reference) ──────────────────
+      // ── Entrafy brand colors (raw, for reference) ──────────────────
       // primary:  #1E3A5F  (azul escuro)
       // accent:   #2E75B6  (azul médio)
     },

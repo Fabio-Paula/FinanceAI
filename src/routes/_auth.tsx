@@ -62,7 +62,7 @@ function AuthShell() {
                 />
               </svg>
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">FinanceAI</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">Entrafy</span>
           </div>
           <p className="text-xs text-muted-foreground">gerenciador financeiro inteligente</p>
         </div>

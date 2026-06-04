@@ -18,9 +18,11 @@ const txSchema = z.object({
 })
 
 // GET /api/transactions
+// Cursor mode: pass `limit` param → returns { data, nextCursor, hasMore }
+// Offset mode: pass `page`/`pageSize` → returns { data, total, page, pageSize, totalPages }
 transactionRoutes.get('/', async (c) => {
   const userId = c.get('userId')
-  const { page = '1', pageSize = '20', type, category_id, from, to, search } = c.req.query()
+  const { page = '1', pageSize = '20', type, category_id, from, to, search, unconfirmed, cursor, limit } = c.req.query()
 
   const where: Record<string, unknown> = { user_id: userId }
   if (type) where.type = type
@@ -34,7 +36,24 @@ transactionRoutes.get('/', async (c) => {
   if (search) {
     where.description_normalized = { contains: search.toLowerCase(), mode: 'insensitive' }
   }
+  if (unconfirmed === 'true') where.is_ai_confirmed = false
 
+  // Cursor-based pagination
+  if (limit !== undefined) {
+    const take = Math.min(Number(limit), 100)
+    const rows = await prisma.transaction.findMany({
+      where,
+      include: { category: true, ai_category: true },
+      orderBy: [{ date: 'desc' }, { created_at: 'desc' }],
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      take: take + 1,
+    })
+    const hasMore = rows.length > take
+    const data = hasMore ? rows.slice(0, take) : rows
+    return c.json({ data, nextCursor: hasMore ? data[data.length - 1].id : null, hasMore })
+  }
+
+  // Offset-based pagination (backward compat)
   const skip = (Number(page) - 1) * Number(pageSize)
   const [data, total] = await Promise.all([
     prisma.transaction.findMany({

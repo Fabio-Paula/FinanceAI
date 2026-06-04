@@ -67,6 +67,16 @@ categoryRoutes.delete('/:id', async (c) => {
     where: { id: c.req.param('id'), user_id: userId, is_system: false },
   })
   if (!existing) return c.json({ error: 'Categoria não encontrada ou não removível' }, 404)
+
+  const txCount = await prisma.transaction.count({
+    where: {
+      user_id: userId,
+      OR: [{ category_id: existing.id }, { ai_category_id: existing.id }],
+    },
+  })
+  if (txCount > 0)
+    return c.json({ error: `Não é possível excluir: ${txCount} transação(ões) vinculada(s) a esta categoria.` }, 409)
+
   await prisma.category.delete({ where: { id: c.req.param('id') } })
   return c.json({ message: 'Categoria removida' })
 })

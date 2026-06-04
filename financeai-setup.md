@@ -1,4 +1,4 @@
-# FinanceAI — Setup PostgreSQL + Prisma
+# Entrafy — Setup PostgreSQL + Prisma
 
 ## 1. Dependências
 
@@ -11,7 +11,7 @@ npx prisma init
 ## 2. Configurar `.env`
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/financeai?schema=public"
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/entrafy?schema=public"
 ```
 
 ## 3. Copiar `schema.prisma`
@@ -66,7 +66,7 @@ npx prisma migrate status
 
 | Campo | Valor |
 |-------|-------|
-| Email | `demo@financeai.dev` |
+| Email | `demo@entrafy.dev` |
 | Senha | `demo123` |
 
 ---

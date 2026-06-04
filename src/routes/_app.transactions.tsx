@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Search, CheckCircle2, AlertTriangle, RefreshCw, Plus, Pencil, Trash2 } from 'lucide-react'
-import type { Transaction, Category } from '@/types'
+import { useState, useEffect } from 'react'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { Search, CheckCircle2, AlertTriangle, RefreshCw, Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
+import type { Transaction, Category, CursorPage, DashboardSummary } from '@/types'
 import { CategoryBadge } from '@/components/ui/category-badge'
 import { Currency } from '@/components/ui/currency'
 import { cn } from '@/lib/utils'
@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { useTransactions, type TxInput } from '@/lib/transactions-store'
 import { apiGet } from '@/lib/api'
 import { useMonth } from '@/lib/month-context'
+import { useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -63,6 +64,10 @@ function TransactionModal({
   onSave: (data: TxInput) => void
 }) {
   const [form, setForm] = useState<TxForm>(tx ? txToForm(tx) : emptyForm())
+
+  useEffect(() => {
+    if (open) setForm(tx ? txToForm(tx) : emptyForm())
+  }, [open, tx])
 
   const set = (k: keyof TxForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [k]: e.target.value }))
@@ -182,20 +187,73 @@ function DeleteConfirm({ tx, onClose, onConfirm }: { tx: Transaction | null; onC
 
 function ConfidenceBadge({ score }: { score: number }) {
   const pct   = Math.round(score * 100)
-  const color = score >= 0.95 ? 'text-[hsl(var(--success))]' : score >= 0.75 ? 'text-[hsl(var(--accent))]' : 'text-[hsl(var(--destructive))]'
-  return <span className={cn('font-mono text-xs tabular-nums', color)}>{pct}%</span>
+  const color = score >= 0.95
+    ? 'text-[hsl(var(--positive))]'
+    : score >= 0.75
+    ? 'text-[hsl(var(--warning))]'
+    : 'text-[hsl(var(--negative))]'
+  return <span className={cn('font-mono text-xs tabular-nums font-semibold', color)}>{pct}%</span>
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
+const PAGE_LIMIT = 30
+
 export function TransactionsPage() {
-  const { txList, addTransaction, updateTransaction, deleteTransaction } = useTransactions()
-  const { monthLabel, isReadOnly } = useMonth()
-  const [search,     setSearch]    = useState('')
-  const [filter,     setFilter]    = useState<'all' | 'income' | 'expense' | 'review'>('all')
-  const [editingCat, setEditingCat] = useState<string | null>(null)
-  const [modal,      setModal]     = useState<'add' | Transaction | null>(null)
-  const [delTx,      setDelTx]     = useState<Transaction | null>(null)
+  const { addTransaction, updateTransaction, deleteTransaction } = useTransactions()
+  const { monthKey, monthLabel, isReadOnly } = useMonth()
+
+  const [searchInput, setSearchInput]   = useState('')
+  const [search, setSearch]             = useState('')
+  const [filter, setFilter]             = useState<'all' | 'income' | 'expense' | 'review'>('all')
+  const [editingCat, setEditingCat]     = useState<string | null>(null)
+  const [modal,      setModal]          = useState<'add' | Transaction | null>(null)
+  const [delTx,      setDelTx]          = useState<Transaction | null>(null)
+
+  // Debounce search input → avoid firing a request on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 350)
+    return () => clearTimeout(t)
+  }, [searchInput])
+
+  // Date range for the selected month
+  const [year, month] = monthKey.split('-').map(Number)
+  const from = `${year}-${String(month).padStart(2, '0')}-01`
+  const to   = `${year}-${String(month).padStart(2, '0')}-${new Date(year, month, 0).getDate()}`
+
+  // ── Infinite query (cursor-based) ─────────────────────────────────────────
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['transactions-infinite', monthKey, search, filter] as const,
+    queryFn: ({ pageParam }: { pageParam: string | null }) => {
+      const params = new URLSearchParams({ limit: String(PAGE_LIMIT), from, to })
+      if (search) params.set('search', search)
+      if (filter === 'income' || filter === 'expense') params.set('type', filter)
+      if (filter === 'review') params.set('unconfirmed', 'true')
+      if (pageParam) params.set('cursor', pageParam)
+      return apiGet<CursorPage<Transaction>>(`/api/transactions?${params}`)
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    initialPageParam: null as string | null,
+  })
+
+  const transactions = data?.pages.flatMap(p => p.data) ?? []
+
+  // ── Dashboard summary for header stats ───────────────────────────────────
+
+  const { data: summaryData } = useQuery({
+    queryKey: ['dashboard-summary', monthKey],
+    queryFn: () => apiGet<{ data: DashboardSummary }>(`/api/dashboard/summary?month=${monthKey}`),
+  })
+  const stats = summaryData?.data
+
+  // ── Categories ────────────────────────────────────────────────────────────
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
@@ -203,20 +261,11 @@ export function TransactionsPage() {
   })
   const categories = categoriesData?.data ?? []
 
-  const filtered = useMemo(() => {
-    let list = txList
-    if (filter === 'income')  list = list.filter(t => t.type === 'income')
-    if (filter === 'expense') list = list.filter(t => t.type === 'expense')
-    if (filter === 'review')  list = list.filter(t => !t.is_ai_confirmed)
-    if (search) {
-      const q = search.toLowerCase()
-      const catName = (t: Transaction) => t.category?.name ?? t.ai_category?.name ?? ''
-      list = list.filter(t =>
-        t.description.toLowerCase().includes(q) || catName(t).toLowerCase().includes(q)
-      )
-    }
-    return list
-  }, [txList, filter, search])
+  // ── IntersectionObserver sentinel ─────────────────────────────────────────
+
+  const { sentinelRef, containerRef } = useInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   function confirmCategory(id: string, categoryId: string) {
     updateTransaction(id, { category_id: categoryId || null })
@@ -245,144 +294,178 @@ export function TransactionsPage() {
     setDelTx(null)
   }
 
-  const totalIncome  = txList.filter(t => t.type === 'income').reduce((s, t) => s + parseFloat(t.amount), 0)
-  const totalExpense = txList.filter(t => t.type === 'expense').reduce((s, t) => s + parseFloat(t.amount), 0)
-  const pendingCount = txList.filter(t => !t.is_ai_confirmed).length
+  const fmtBRL = (v: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
 
-  const fmtBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
+  const pendingCount = stats?.pendingReview ?? 0
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Transações</h1>
-          <p className="text-sm text-muted-foreground mt-0.5 capitalize">{txList.length} lançamentos — {monthLabel}</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="font-mono text-[hsl(var(--success))] tabular-nums">+{fmtBRL(totalIncome)}</span>
-            <span className="text-muted-foreground">/</span>
-            <span className="font-mono text-[hsl(var(--destructive))] tabular-nums">-{fmtBRL(totalExpense)}</span>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Fixed top: header + filters */}
+      <div className="shrink-0 px-6 pt-6 pb-4 space-y-4 max-w-7xl mx-auto w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Transações</h1>
+            <p className="text-sm text-muted-foreground mt-0.5 capitalize">
+              {stats?.transactionCount ?? '—'} lançamentos — {monthLabel}
+            </p>
           </div>
-          {!isReadOnly && (
-            <Button onClick={() => setModal('add')} size="sm">
-              <Plus className="h-4 w-4" /> Nova transação
-            </Button>
+          <div className="flex items-center gap-4">
+            {stats && (
+              <div className="flex items-center gap-3 text-sm">
+                <span className="font-mono text-[hsl(var(--success))] tabular-nums">+{fmtBRL(stats.totalIncome)}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="font-mono text-[hsl(var(--destructive))] tabular-nums">-{fmtBRL(stats.totalExpense)}</span>
+              </div>
+            )}
+            {!isReadOnly && (
+              <Button onClick={() => setModal('add')} size="sm">
+                <Plus className="h-4 w-4" /> Nova transação
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Search + filters */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              placeholder="Buscar transações…"
+              className="pl-9"
+            />
+          </div>
+          <div className="flex items-center gap-1 bg-muted rounded-md p-0.5">
+            {(['all', 'income', 'expense', 'review'] as const).map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={cn(
+                  'h-8 px-3 text-xs font-medium rounded transition-colors',
+                  filter === f ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                )}>
+                {f === 'all' ? 'Todas' : f === 'income' ? 'Receitas' : f === 'expense' ? 'Despesas' : `Revisar (${pendingCount})`}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable table */}
+      <div className="flex-1 min-h-0 px-6 pb-6 max-w-7xl mx-auto w-full">
+        <div
+          ref={containerRef}
+          className="rounded-lg border border-border bg-card overflow-y-auto max-h-full"
+        >
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 z-10">
+              <tr className="border-b border-border bg-muted/40">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Data</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Descrição</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Categoria</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Confiança IA</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Valor</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-3 w-20" />
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map(tx => {
+                const catName = tx.category?.name ?? tx.ai_category?.name ?? 'Sem categoria'
+                const signedAmount = tx.type === 'income' ? parseFloat(tx.amount) : -parseFloat(tx.amount)
+                return (
+                  <tr key={tx.id} className={cn(
+                    'border-b border-border last:border-0 transition-colors group',
+                    !tx.is_ai_confirmed ? 'bg-destructive/3' : 'hover:bg-muted/30'
+                  )}>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(tx.date).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="px-4 py-3 max-w-xs">
+                      <div className="flex items-center gap-2">
+                        {tx.is_recurring && <RefreshCw className="h-3 w-3 text-muted-foreground shrink-0" aria-label="Recorrente" />}
+                        <span className="truncate text-foreground">{tx.description}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      {!isReadOnly && editingCat === tx.id ? (
+                        <select defaultValue={tx.category_id ?? ''} autoFocus
+                          onChange={e => confirmCategory(tx.id, e.target.value)}
+                          onBlur={() => setEditingCat(null)}
+                          className="h-7 px-2 text-xs rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring">
+                          <option value="">Sem categoria</option>
+                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      ) : (
+                        <button onClick={() => !isReadOnly && setEditingCat(tx.id)} disabled={isReadOnly}>
+                          <CategoryBadge category={catName} confidence={tx.ai_confidence ?? undefined} size="sm" />
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <ConfidenceBadge score={tx.ai_confidence ?? 0} />
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Currency value={signedAmount} size="sm" color="auto" />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {tx.is_ai_confirmed
+                        ? <CheckCircle2 className="h-4 w-4 text-[hsl(var(--success))] inline" />
+                        : <AlertTriangle className="h-4 w-4 text-[hsl(var(--destructive))] inline" />}
+                    </td>
+                    <td className="px-4 py-3">
+                      {!isReadOnly && (
+                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setModal(tx)}
+                            title="Editar"
+                            className="h-7 w-7"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDelTx(tx)}
+                            title="Remover"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+
+          {/* Loading skeleton on first load */}
+          {isLoading && (
+            <div className="py-12 flex justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && transactions.length === 0 && (
+            <div className="py-12 text-center text-muted-foreground text-sm">Nenhuma transação encontrada.</div>
+          )}
+
+          {/* Sentinel + fetch-next indicator */}
+          <div ref={sentinelRef} className="h-px" />
+          {isFetchingNextPage && (
+            <div className="py-4 flex justify-center border-t border-border">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
           )}
         </div>
-      </div>
-
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar transações…"
-            className="pl-9"
-          />
-        </div>
-        <div className="flex items-center gap-1 bg-muted rounded-md p-0.5">
-          {(['all', 'income', 'expense', 'review'] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={cn(
-                'h-8 px-3 text-xs font-medium rounded transition-colors',
-                filter === f ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              )}>
-              {f === 'all' ? 'Todas' : f === 'income' ? 'Receitas' : f === 'expense' ? 'Despesas' : `Revisar (${pendingCount})`}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/40">
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Data</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Descrição</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Categoria</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Confiança IA</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">Valor</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 w-20" />
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(tx => {
-              const catName = tx.category?.name ?? tx.ai_category?.name ?? 'Sem categoria'
-              const signedAmount = tx.type === 'income' ? parseFloat(tx.amount) : -parseFloat(tx.amount)
-              return (
-                <tr key={tx.id} className={cn(
-                  'border-b border-border last:border-0 transition-colors group',
-                  !tx.is_ai_confirmed ? 'bg-destructive/3' : 'hover:bg-muted/30'
-                )}>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(tx.date).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <div className="flex items-center gap-2">
-                      {tx.is_recurring && <RefreshCw className="h-3 w-3 text-muted-foreground shrink-0" aria-label="Recorrente" />}
-                      <span className="truncate text-foreground">{tx.description}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {!isReadOnly && editingCat === tx.id ? (
-                      <select defaultValue={tx.category_id ?? ''} autoFocus
-                        onChange={e => confirmCategory(tx.id, e.target.value)}
-                        onBlur={() => setEditingCat(null)}
-                        className="h-7 px-2 text-xs rounded border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring">
-                        <option value="">Sem categoria</option>
-                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                    ) : (
-                      <button onClick={() => !isReadOnly && setEditingCat(tx.id)} disabled={isReadOnly}>
-                        <CategoryBadge category={catName} confidence={tx.ai_confidence ?? undefined} size="sm" />
-                      </button>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <ConfidenceBadge score={tx.ai_confidence ?? 0} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Currency value={signedAmount} size="sm" color="auto" />
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {tx.is_ai_confirmed
-                      ? <CheckCircle2 className="h-4 w-4 text-[hsl(var(--success))] inline" />
-                      : <AlertTriangle className="h-4 w-4 text-[hsl(var(--destructive))] inline" />}
-                  </td>
-                  <td className="px-4 py-3">
-                    {!isReadOnly && (
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setModal(tx)}
-                          title="Editar"
-                          className="h-7 w-7"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDelTx(tx)}
-                          title="Remover"
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-        {filtered.length === 0 && (
-          <div className="py-12 text-center text-muted-foreground text-sm">Nenhuma transação encontrada.</div>
-        )}
       </div>
 
       <TransactionModal

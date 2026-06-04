@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   FinanceAI — Global Styles
+   Entrafy — Global Styles
    Stack: Tailwind CSS v3 + shadcn/ui (style: default, baseColor: slate)
    ───────────────────────────────────────────────────────────────────────────── */
 
@@ -37,51 +37,71 @@
 
   :root {
     /* ── Brand ── */
-    --brand-primary:  215 62% 25%;   /* #1E3A5F */
-    --brand-accent:   210 59% 44%;   /* #2E75B6 */
+    --brand-primary:  26 65% 53%;    /* #D97736 — terracotta */
+    --brand-accent:   27 86% 95%;    /* #FDF2E9 — pale peach */
 
-    /* ── shadcn/ui semantic tokens (light) ── */
-    /* REFINED NATURAL MINIMALISM: Tons naturais, minerais, com acentos em verde para crescimento financeiro */
+    /* ════════════════════════════════════════════════════════════════════════
+       WARM MINIMALIST — Entrafy Light Mode
+       Base: ivory/cream • Accent: terracotta • Text: warm charcoal
+       ════════════════════════════════════════════════════════════════════════ */
 
-    --background:          120 8% 98%;    /* #F8FAFB - Branco com leve hint neutro */
-    --foreground:          210 8% 18%;    /* #2B3236 - Cinza muito escuro, sofisticado */
+    /* ── Structure ── */
+    --background:          40 60% 98%;    /* #FDFBF7 — ivory/cream, replaces pure white */
+    --foreground:          30 3% 18%;     /* #2F2E2C — espresso charcoal */
 
-    --card:                0 0% 100%;     /* #FFFFFF - Branco puro */
-    --card-foreground:     210 8% 18%;    /* #2B3236 - Cinza muito escuro */
+    --card:                0 0% 100%;     /* #FFFFFF — pure white for depth on ivory base */
+    --card-foreground:     30 3% 18%;
 
-    --popover:             0 0% 100%;     /* #FFFFFF - Branco puro */
-    --popover-foreground:  210 8% 18%;    /* #2B3236 - Cinza muito escuro */
+    --popover:             0 0% 100%;
+    --popover-foreground:  30 3% 18%;
 
-    --primary:             142 28% 45%;   /* #4A7C59 - Verde natural, calmo e confiável */
+    /* ── Primary action: terracotta ── */
+    --primary:             26 65% 53%;    /* #D97736 */
     --primary-foreground:  0 0% 100%;
 
-    --secondary:           120 8% 95%;    /* #F0F2F3 - Cinza muito claro, neutro */
-    --secondary-foreground:210 8% 18%;    /* #2B3236 - Cinza muito escuro */
+    /* ── Secondary / Muted surfaces ── */
+    --secondary:           40 30% 96%;    /* Ivory slightly darker than bg */
+    --secondary-foreground:30 3% 18%;
 
-    --muted:               120 8% 92%;    /* #E8EAEB - Cinza claro, quase imperceptível */
-    --muted-foreground:    210 6% 45%;    /* #747A80 - Cinza médio */
+    --muted:               40 25% 93%;    /* #F2EFE9 — warm sand */
+    --muted-foreground:    30 4% 44%;     /* #75716B — sepia-gray */
 
-    --accent:              15 35% 72%;    /* #D4A89E - Terra/argila suave, complementa o verde */
-    --accent-foreground:   210 8% 18%;    /* #2B3236 - Cinza muito escuro */
+    /* ── Accent: active nav state (pale peach bg + terracotta text) ── */
+    --accent:              27 86% 95%;    /* #FDF2E9 */
+    --accent-foreground:   26 65% 53%;    /* #D97736 */
 
-    --destructive:         0 72% 51%;
+    /* ── Semantic feedback ── */
+    --destructive:         1 62% 58%;     /* #D9534F — muted coral/brick */
     --destructive-foreground: 0 0% 100%;
 
-    --success:             142 45% 50%;   /* #5FA86B - Verde mais vivo para sucesso */
+    --success:             145 28% 42%;   /* #4E8A67 — muted sage green */
     --success-foreground:  0 0% 100%;
 
-    --border:              120 4% 94%;    /* Cinza extremamente claro - quase imperceptível */
-    --input:               120 4% 94%;    /* Cinza extremamente claro - quase imperceptível */
-    --ring:                142 28% 45%;   /* #4A7C59 - Verde natural */
+    /* ── Borders & inputs ── */
+    --border:              40 25% 93%;    /* #F2EFE9 — warm sand divider */
+    --input:               40 25% 93%;
+    --ring:                26 65% 53%;    /* #D97736 */
 
     --radius: 0.5rem;
 
-    /* ── Chart tokens ── */
-    --chart-1: 215 62% 25%;
-    --chart-2: 210 59% 44%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 38 92% 50%;
-    --chart-5: 0 72% 51%;
+    /* ── Chart / Financial indicator tokens ── */
+    --chart-1: 26 65% 53%;      /* #D97736 — terracotta primary */
+    --chart-2: 145 28% 42%;     /* #4E8A67 — income sage green */
+    --chart-3: 1 62% 58%;       /* #D9534F — expense coral */
+    --chart-4: 38 84% 62%;      /* #F0AD4E — warning mustard */
+    --chart-5: 196 30% 33%;     /* #3B626E — teal slate */
+
+    /* ── Financial semantic vars ── */
+    --positive:            145 28% 42%;   /* #4E8A67 — income/revenue */
+    --positive-foreground: 0 0% 100%;
+    --negative:            1 62% 58%;     /* #D9534F — expense/outflow */
+    --negative-foreground: 0 0% 100%;
+    --warning:             38 84% 62%;    /* #F0AD4E — attention/review */
+    --warning-foreground:  30 3% 18%;
+
+    /* ── Nav active state helpers ── */
+    --nav-active-bg:       27 86% 95%;    /* #FDF2E9 */
+    --nav-active-fg:       26 65% 53%;    /* #D97736 */
 
     /* ── Font variables ── */
     --font-sans: "IBM Plex Sans", system-ui, sans-serif;
@@ -89,59 +109,73 @@
 
     /* ────────────────────────────────────────────────────────────────────────
        Category colors — LIGHT MODE
-       Each entry: bg (background), fg (text), muted (10% opacity bg)
+       Warm desaturated pastels per design spec
        ──────────────────────────────────────────────────────────────────────── */
-    --category-mercado:       #2D7D46;   /* green */
-    --category-mercado-fg:    #ffffff;
-    --category-mercado-muted: #2d7d4619;
 
-    --category-restaurante:   #C2410C;   /* orange-red */
-    --category-restaurante-fg:    #ffffff;
-    --category-restaurante-muted: #c2410c19;
+    /* Alimentação / Mercado — caramel amber */
+    --category-mercado:       #F2D0A8;
+    --category-mercado-fg:    #7A3F12;
+    --category-mercado-muted: #F2D0A840;
 
-    --category-transporte:    #1D4ED8;   /* blue */
-    --category-transporte-fg: #ffffff;
-    --category-transporte-muted: #1d4ed819;
+    /* Restaurante — same family as Alimentação */
+    --category-restaurante:   #F2D0A8;
+    --category-restaurante-fg:    #7A3F12;
+    --category-restaurante-muted: #F2D0A840;
 
-    --category-streaming:     #7C3AED;   /* violet */
-    --category-streaming-fg:  #ffffff;
-    --category-streaming-muted: #7c3aed19;
+    /* Transporte / Vestuário — teal sky */
+    --category-transporte:    #B4D4E4;
+    --category-transporte-fg: #1E4A5C;
+    --category-transporte-muted: #B4D4E440;
 
-    --category-saude:         #0891B2;   /* cyan */
-    --category-saude-fg:      #ffffff;
-    --category-saude-muted:   #0891b219;
+    /* Streaming / Assinaturas — amethyst */
+    --category-streaming:     #D0C2EA;
+    --category-streaming-fg:  #4A2A6A;
+    --category-streaming-muted: #D0C2EA40;
 
-    --category-farmacia:      #0D9488;   /* teal */
-    --category-farmacia-fg:   #ffffff;
-    --category-farmacia-muted:#0d948819;
+    /* Saúde — sage green */
+    --category-saude:         #B2DEC0;
+    --category-saude-fg:      #1A5230;
+    --category-saude-muted:   #B2DEC040;
 
-    --category-lazer:         #DB2777;   /* pink */
-    --category-lazer-fg:      #ffffff;
-    --category-lazer-muted:   #db277719;
+    /* Farmácia — same family as Saúde */
+    --category-farmacia:      #B2DEC0;
+    --category-farmacia-fg:   #1A5230;
+    --category-farmacia-muted:#B2DEC040;
 
-    --category-assinaturas:   #9333EA;   /* purple */
-    --category-assinaturas-fg:#ffffff;
-    --category-assinaturas-muted: #9333ea19;
+    /* Lazer — guava rose */
+    --category-lazer:         #F0BAD0;
+    --category-lazer-fg:      #7A2845;
+    --category-lazer-muted:   #F0BAD040;
 
-    --category-combustivel:   #D97706;   /* amber */
-    --category-combustivel-fg:#ffffff;
-    --category-combustivel-muted: #d9770619;
+    /* Assinaturas — amethyst */
+    --category-assinaturas:   #D0C2EA;
+    --category-assinaturas-fg:#4A2A6A;
+    --category-assinaturas-muted: #D0C2EA40;
 
-    --category-educacao:      #2563EB;   /* indigo-blue */
-    --category-educacao-fg:   #ffffff;
-    --category-educacao-muted:#2563eb19;
+    /* Combustível — warm sand */
+    --category-combustivel:   #CCCABE;
+    --category-combustivel-fg:#3D3A35;
+    --category-combustivel-muted: #CCCABE40;
 
-    --category-salario:       #16A34A;   /* emerald */
-    --category-salario-fg:    #ffffff;
-    --category-salario-muted: #16a34a19;
+    /* Educação — amethyst */
+    --category-educacao:      #D0C2EA;
+    --category-educacao-fg:   #4A2A6A;
+    --category-educacao-muted:#D0C2EA40;
 
-    --category-investimentos:  #1E3A5F;  /* brand-primary */
-    --category-investimentos-fg: #ffffff;
-    --category-investimentos-muted: #1e3a5f19;
+    /* Salário — sage green (income) */
+    --category-salario:       #B2DEC0;
+    --category-salario-fg:    #1A5230;
+    --category-salario-muted: #B2DEC040;
 
-    --category-outros:        #64748B;   /* slate */
-    --category-outros-fg:     #ffffff;
-    --category-outros-muted:  #64748b19;
+    /* Investimentos — teal sky */
+    --category-investimentos:  #B4D4E4;
+    --category-investimentos-fg: #1E4A5C;
+    --category-investimentos-muted: #B4D4E440;
+
+    /* Outros — warm sand */
+    --category-outros:        #CCCABE;
+    --category-outros-fg:     #3D3A35;
+    --category-outros-muted:  #CCCABE40;
   }
 
   /* ── Dark mode overrides ─────────────────────────────────────────────────── */
@@ -155,8 +189,8 @@
     --popover:             0 0% 12%;
     --popover-foreground:  0 0% 95%;
 
-    --primary:             210 59% 55%;   /* lighter for contrast on dark */
-    --primary-foreground:  0 0% 9%;
+    --primary:             265 70% 62%;   /* violet/purple for dark mode */
+    --primary-foreground:  0 0% 100%;
 
     --secondary:           0 0% 17%;
     --secondary-foreground:0 0% 95%;
@@ -164,8 +198,8 @@
     --muted:               0 0% 17%;
     --muted-foreground:    0 0% 53%;
 
-    --accent:              210 59% 55%;
-    --accent-foreground:   0 0% 9%;
+    --accent:              265 70% 62%;
+    --accent-foreground:   0 0% 100%;
 
     --destructive:         0 63% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -175,10 +209,10 @@
 
     --border:              0 0% 20%;
     --input:               0 0% 20%;
-    --ring:                210 59% 55%;
+    --ring:                265 70% 62%;
 
     /* ── Chart tokens (dark) ── */
-    --chart-1: 210 59% 55%;
+    --chart-1: 265 70% 62%;
     --chart-2: 142 71% 40%;
     --chart-3: 38 92% 55%;
     --chart-4: 280 65% 60%;
@@ -248,7 +282,7 @@
 
   /* ── Scrollbar — light mode ──────────────────────────────────────────────── */
   :root {
-    scrollbar-color: hsl(214 32% 78%) hsl(215 20% 95%);
+    scrollbar-color: hsl(30 12% 76%) hsl(40 25% 93%);
     scrollbar-width: thin;
   }
 
@@ -258,17 +292,17 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(215 20% 95%);
+    background: hsl(40 25% 93%);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(214 32% 78%);
+    background: hsl(30 12% 76%);
     border-radius: 9999px;
-    border: 2px solid hsl(215 20% 95%);
+    border: 2px solid hsl(40 25% 93%);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(215 16% 57%);
+    background: hsl(30 8% 58%);
   }
 
   /* ── Scrollbar — dark mode ───────────────────────────────────────────────── */

@@ -145,9 +145,9 @@ export function CategoryBadge({
         className,
       )}
       style={{
-        backgroundColor: colors.muted,
-        color:           `color-mix(in srgb, ${colors.bg} 70%, var(--tw-color-foreground, #ccc))`,
-        borderColor:     `color-mix(in srgb, ${colors.bg} 30%, transparent)`,
+        backgroundColor: colors.bg,
+        color:           colors.fg,
+        borderColor:     `color-mix(in srgb, ${colors.fg} 20%, transparent)`,
       }}
     >
       {showWarning && (

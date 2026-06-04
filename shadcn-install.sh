@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# FinanceAI — shadcn/ui component installation
+# Entrafy — shadcn/ui component installation
 # Run from the project root after `npx shadcn@latest init`
 
 npx shadcn@latest add button
