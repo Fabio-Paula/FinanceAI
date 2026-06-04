@@ -44,7 +44,7 @@ function LoginPage() {
     }
     localStorage.setItem('token', json.token)
     localStorage.setItem('user', JSON.stringify(json.user))
-    navigate({ to: '/dashboard' })
+    navigate({ to: '/dashboard', search: {} })
   }
 
   return (

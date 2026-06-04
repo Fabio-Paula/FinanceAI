@@ -97,7 +97,7 @@ function MonthPicker() {
     const key = `${pickerYear}-${String(m + 1).padStart(2, '0')}`
     const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
     navigate({
-      search: (prev: Record<string, unknown>) => ({
+      search: (prev) => ({
         ...prev,
         month: key === nowKey ? undefined : key,
       }),
@@ -106,7 +106,7 @@ function MonthPicker() {
   }
 
   function goToToday() {
-    navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, month: undefined }) })
+    navigate({ search: (prev) => ({ ...prev, month: undefined }) })
   }
 
   function isMonthDisabled(y: number, m: number) {
@@ -321,6 +321,7 @@ function AppLayout() {
                 </p>
                 <Link
                   to="/recorrentes"
+                  search={(prev) => prev}
                   onClick={dismissBanner}
                   className="text-xs font-semibold text-amber-700 dark:text-amber-300 underline underline-offset-2 hover:no-underline transition-all whitespace-nowrap"
                 >

@@ -73,7 +73,7 @@ function RegisterPage() {
     localStorage.setItem('token', json.token)
     localStorage.setItem('user', JSON.stringify(json.user))
     toast.success('Conta criada com sucesso!')
-    navigate({ to: '/dashboard' })
+    navigate({ to: '/dashboard', search: {} })
   }
 
   return (

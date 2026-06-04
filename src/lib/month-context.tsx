@@ -37,7 +37,7 @@ export function MonthProvider({ children }: { children: React.ReactNode }) {
   function goTo(y: number, m: number) {
     const key = `${y}-${String(m + 1).padStart(2, '0')}`
     navigate({
-      search: (prev: Record<string, unknown>) => ({
+      search: (prev) => ({
         ...prev,
         month: key === currentKey ? undefined : key,
       }),

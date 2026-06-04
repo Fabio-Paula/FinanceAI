@@ -11,9 +11,9 @@ import {
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Transações', to: '/transactions', icon: ArrowDownUp },
-  { label: 'Importar', to: '/import', icon: Upload },
+  { label: 'Importar', to: '/imports', icon: Upload },
   { label: 'Categorias', to: '/categories', icon: Tag },
   { label: 'Configurações', to: '/settings', icon: Settings },
 ] as const
@@ -37,6 +37,7 @@ export function Sidebar() {
             <Link
               key={to}
               to={to}
+              search={(prev) => prev}
               className={cn(
                 'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
                 active
