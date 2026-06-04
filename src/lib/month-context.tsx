@@ -19,7 +19,7 @@ const MonthContext = createContext<MonthContextValue | null>(null)
 export function MonthProvider({ children }: { children: React.ReactNode }) {
   const now = new Date()
   const search = useSearch({ from: '/_app' })
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: '/_app' })
 
   let year: number, month: number
   if (search.month && /^\d{4}-\d{2}$/.test(search.month)) {

@@ -81,7 +81,7 @@ const MONTHS_SHORT = [
 
 function MonthPicker() {
   const { year, month, monthLabel, prevMonth, nextMonth, isCurrentMonth, isReadOnly } = useMonth()
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: '/_app' })
   const currentSearch = useSearch({ from: '/_app' })
   const [open, setOpen] = useState(false)
   const [pickerYear, setPickerYear] = useState(year)
