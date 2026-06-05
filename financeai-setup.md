@@ -1,77 +1,173 @@
-# Entrafy — Setup PostgreSQL + Prisma
+# Entrafy — Guia de Setup
 
-## 1. Dependências
+Guia completo para rodar o projeto localmente após clonar o repositório.
+
+---
+
+## Pré-requisitos
+
+| Ferramenta | Versão mínima | Como instalar                                                   |
+| ---------- | ------------- | --------------------------------------------------------------- |
+| Node.js    | 18+           | [nodejs.org](https://nodejs.org)                                |
+| pnpm       | 8+            | `npm install -g pnpm`                                           |
+| Docker     | qualquer      | [docker.com](https://www.docker.com) _(opcional, para o banco)_ |
+
+> Se preferir usar um PostgreSQL já instalado localmente, o Docker não é obrigatório.
+
+---
+
+## 1. Instalar dependências
 
 ```bash
-npm install prisma @prisma/client bcryptjs
-npm install -D ts-node typescript @types/node @types/bcryptjs
-npx prisma init
+pnpm install
 ```
 
-## 2. Configurar `.env`
+---
+
+## 2. Configurar variáveis de ambiente
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` e preencha as variáveis obrigatórias:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/entrafy?schema=public"
+# PostgreSQL — veja opção A ou B abaixo
+DATABASE_URL="postgresql://entrafy:entrafy123@localhost:5432/entrafy?schema=public"
+
+# JWT — gere um segredo forte com:
+# openssl rand -base64 32
+JWT_SECRET="troque-por-um-valor-secreto-seguro"
+
+# Porta da API (padrão: 3001)
+PORT=3001
+
+# Chaves de IA (opcional — configure conforme o provedor que for usar)
+# OPENAI_API_KEY=""
+# ANTHROPIC_API_KEY=""
+# GEMINI_API_KEY=""
 ```
 
-## 3. Copiar `schema.prisma`
+---
 
-Mova o arquivo `schema.prisma` para `prisma/schema.prisma`.
+## 3. Subir o banco de dados
 
-## 4. Configurar seed no `package.json`
+### Opção A — Docker (recomendado)
 
-```json
-{
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  }
-}
+```bash
+docker compose up -d
 ```
 
-O arquivo `seed.ts` deve ficar em `prisma/seed.ts`.
+Isso sobe o PostgreSQL 16 na porta `5432` e o Adminer (interface web) na porta `8080`.
 
-## 5. Índice GIN para `tags` (migration customizada)
+Credenciais configuradas no `docker-compose.yml`:
 
-Após o `migrate dev`, adicione em uma migration manual:
+| Campo    | Valor        |
+| -------- | ------------ |
+| Usuário  | `entrafy`    |
+| Senha    | `entrafy123` |
+| Database | `entrafy`    |
+
+A `DATABASE_URL` correspondente (já preenchida no exemplo acima):
+
+```
+postgresql://entrafy:entrafy123@localhost:5432/entrafy?schema=public
+```
+
+### Opção B — PostgreSQL local já instalado
+
+Crie o banco manualmente e ajuste a `DATABASE_URL` no `.env`:
+
+```bash
+createdb entrafy
+```
+
+---
+
+## 4. Aplicar as migrations e popular o banco
+
+```bash
+# Criar tabelas e aplicar schema
+npx prisma migrate dev --name init
+```
+
+### Índice GIN (passo obrigatório após migrate)
+
+O Prisma não suporta criar índices GIN nativamente. Após rodar as migrations, execute esse SQL **uma vez**:
 
 ```sql
--- CreateIndex GIN para busca em array de tags
 CREATE INDEX idx_tx_tags_gin ON transactions USING GIN (tags);
 ```
 
-Ou use `prisma migrate dev --create-only` para editar a migration antes de aplicar.
-
-## 6. Executar
+Via psql:
 
 ```bash
-# Criar banco e aplicar schema
-npx prisma migrate dev --name init
-
-# Popular com dados de teste
-npx prisma db seed
-
-# Abrir Prisma Studio (opcional)
-npx prisma studio
+psql postgresql://entrafy:entrafy123@localhost:5432/entrafy -c "CREATE INDEX idx_tx_tags_gin ON transactions USING GIN (tags);"
 ```
 
-## 7. Verificar
-
-```bash
-npx prisma migrate status
-```
+Via Adminer: acesse `http://localhost:8080` e execute o SQL acima.
 
 ---
 
-## Credenciais de Teste
+## 5. Rodar a aplicação
 
-| Campo | Valor              |
-| ----- | ------------------ |
-| Email | `demo@entrafy.dev` |
-| Senha | `demo123`          |
+O projeto tem **dois processos** que precisam rodar simultaneamente:
+
+- **Frontend** — Vite na porta `5173`
+- **Backend** — Hono na porta `3001`
+
+### Opção A — Comando único (recomendado)
+
+```bash
+pnpm dev:all
+```
+
+### Opção B — Dois terminais separados
+
+```bash
+# Terminal 1 — Frontend
+pnpm dev
+
+# Terminal 2 — Backend
+pnpm server
+```
+
+Acesse em: **http://localhost:5173**
+
+> **Primeiro acesso:** a tela inicial redireciona para o login. Para criar sua conta acesse **http://localhost:5173/register**.
 
 ---
 
-## Resumo do Schema
+## Scripts úteis
+
+| Comando                     | O que faz                           |
+| --------------------------- | ----------------------------------- |
+| `pnpm dev:all`              | Inicia frontend + backend juntos    |
+| `pnpm dev`                  | Apenas frontend (Vite, porta 5173)  |
+| `pnpm server`               | Apenas backend (Hono, porta 3001)   |
+| `pnpm db:migrate`           | Aplica novas migrations             |
+| `npx prisma studio`         | Abre o Prisma Studio (GUI do banco) |
+| `npx prisma migrate status` | Verifica estado das migrations      |
+| `pnpm typecheck`            | Checa tipos TypeScript              |
+| `pnpm test`                 | Roda os testes                      |
+
+---
+
+## Checklist rápido
+
+- [ ] Node.js 18+ e pnpm instalados
+- [ ] `.env` criado a partir de `.env.example` com `DATABASE_URL` e `JWT_SECRET` preenchidos
+- [ ] Banco rodando (`docker compose up -d` ou PostgreSQL local)
+- [ ] `pnpm install` executado
+- [ ] `npx prisma migrate dev --name init` executado
+- [ ] Índice GIN criado (`CREATE INDEX idx_tx_tags_gin ON transactions USING GIN (tags);`)
+- [ ] `pnpm dev:all` rodando — acesse http://localhost:5173
+- [ ] Criar conta em http://localhost:5173/register
+
+---
+
+## Estrutura do banco
 
 | Tabela         | Descrição                                      |
 | -------------- | ---------------------------------------------- |
@@ -81,19 +177,19 @@ npx prisma migrate status
 | `categories`   | Hierárquicas, globais (sistema) ou por usuário |
 | `ai_rules`     | Regras de categorização automática por padrão  |
 
-## Índices de Performance — Resumo
+## Índices de performance
 
-| Índice                      | Tabela       | Justificativa                            |
-| --------------------------- | ------------ | ---------------------------------------- |
-| `uq_transaction_user_hash`  | transactions | Deduplicação de importação               |
-| `idx_tx_user_date`          | transactions | Query raiz do extrato (90% das leituras) |
-| `idx_tx_user_date_type`     | transactions | Filtro receita/despesa no dashboard      |
-| `idx_tx_user_category_date` | transactions | Drill-down por categoria + período       |
-| `idx_tx_ai_review`          | transactions | Fila de revisão manual IA                |
-| `idx_tx_import`             | transactions | JOIN com imports                         |
-| `idx_tx_tags_gin`           | transactions | Busca `@>` em array de tags (GIN)        |
-| `idx_imports_user_created`  | imports      | Listagem de imports por data             |
-| `idx_imports_user_status`   | imports      | Polling do worker de processamento       |
-| `idx_imports_user_month`    | imports      | Filtro por competência mensal            |
-| `idx_cat_user_type_order`   | categories   | Listar categorias na ordem correta       |
-| `idx_rules_user_priority`   | ai_rules     | Motor de regras (ordem de prioridade)    |
+| Índice                      | Tabela         | Justificativa                            |
+| --------------------------- | -------------- | ---------------------------------------- |
+| `uq_transaction_user_hash`  | `transactions` | Deduplicação de importação               |
+| `idx_tx_user_date`          | `transactions` | Query raiz do extrato (90% das leituras) |
+| `idx_tx_user_date_type`     | `transactions` | Filtro receita/despesa no dashboard      |
+| `idx_tx_user_category_date` | `transactions` | Drill-down por categoria + período       |
+| `idx_tx_ai_review`          | `transactions` | Fila de revisão manual IA                |
+| `idx_tx_import`             | `transactions` | JOIN com imports                         |
+| `idx_tx_tags_gin`           | `transactions` | Busca `@>` em array de tags (GIN)        |
+| `idx_imports_user_created`  | `imports`      | Listagem de imports por data             |
+| `idx_imports_user_status`   | `imports`      | Polling do worker de processamento       |
+| `idx_imports_user_month`    | `imports`      | Filtro por competência mensal            |
+| `idx_cat_user_type_order`   | `categories`   | Listar categorias na ordem correta       |
+| `idx_rules_user_priority`   | `ai_rules`     | Motor de regras (ordem de prioridade)    |

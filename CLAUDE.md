@@ -31,14 +31,12 @@ npm run server
 
 # Database
 npx prisma migrate dev --name <name>   # apply schema changes
-npx prisma db seed                     # seed with demo data (demo@entrafy.dev / demo123)
 npx prisma studio                      # GUI to inspect DB
 npx prisma migrate status              # check migration state
 
 # After a fresh clone
 cp .env.example .env.local             # fill DATABASE_URL and JWT_SECRET
 npx prisma migrate dev --name init
-npx prisma db seed
 ```
 
 > After `npx prisma migrate dev`, manually add the GIN index for tag searches:

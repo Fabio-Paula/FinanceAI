@@ -10,7 +10,6 @@
     "server": "tsx watch server/index.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "node --import tsx/esm prisma/seed.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
@@ -64,9 +63,6 @@
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
-  },
-  "prisma": {
-    "seed": "node --import tsx/esm prisma/seed.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
