@@ -1,4 +1,11 @@
-import { createFileRoute, Outlet, redirect, Link, useLocation } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  Link,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -14,9 +21,12 @@ import {
   CalendarDays,
   PanelLeftClose,
   PanelLeftOpen,
+  Moon,
+  Sun,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/lib/theme'
 import { toast } from 'sonner'
 import { TransactionsProvider } from '@/lib/transactions-store'
 import { MonthProvider, useMonth } from '@/lib/month-context'
@@ -73,7 +83,7 @@ const MONTHS_SHORT = [
 
 function MonthPicker() {
   const { year, month, monthLabel, isCurrentMonth, isReadOnly } = useMonth()
-  const navigate = Route.useNavigate()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [pickerYear, setPickerYear] = useState(year)
 
@@ -89,7 +99,7 @@ function MonthPicker() {
 
   function goTo(y: number, m: number) {
     const key = `${y}-${String(m + 1).padStart(2, '0')}`
-    navigate({ search: { month: key === currentKey ? undefined : key } })
+    navigate({ search: (prev) => ({ ...prev, month: key === currentKey ? undefined : key }) })
   }
 
   function prevMonth() {
@@ -109,7 +119,7 @@ function MonthPicker() {
   }
 
   function goToToday() {
-    navigate({ search: { month: undefined } })
+    navigate({ search: (prev) => ({ ...prev, month: undefined }) })
   }
 
   function isMonthDisabled(y: number, m: number) {
@@ -218,6 +228,7 @@ function AppLayout() {
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem('sidebar-collapsed') === '1'
   )
+  const { dark, toggle: toggleTheme } = useTheme()
 
   function toggleSidebar() {
     setCollapsed((prev) => {
@@ -293,7 +304,26 @@ function AppLayout() {
             })}
           </nav>
 
-          {/* User / Logout */}
+          {/* Theme toggle */}
+          <div className="p-2">
+            <button
+              onClick={toggleTheme}
+              title={collapsed ? (dark ? 'Modo claro' : 'Modo escuro') : undefined}
+              className={cn(
+                'flex items-center rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors w-full',
+                collapsed ? 'justify-center px-0 py-2' : 'gap-2.5 px-3 py-2'
+              )}
+            >
+              {dark ? (
+                <Sun size={15} className="shrink-0" />
+              ) : (
+                <Moon size={15} className="shrink-0" />
+              )}
+              {!collapsed && (dark ? 'Modo claro' : 'Modo escuro')}
+            </button>
+          </div>
+
+          {/* Logout */}
           <div className="p-2 border-t border-border">
             <button
               onClick={logout}

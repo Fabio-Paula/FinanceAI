@@ -11,7 +11,12 @@ import {
   Check,
   X,
   Loader2,
+  CalendarIcon,
 } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CATEGORY_COLORS } from '@/components/ui/category-badge'
 import type { CategoryKey } from '@/components/ui/category-badge'
 import type { Transaction, Category, CursorPage } from '@/types'
@@ -454,14 +459,30 @@ function EditRow({
 
   return (
     <tr className="border-t border-border bg-primary/5">
-      <td className="px-4 py-1.5" style={{ width: 120 }}>
-        <input
-          type="date"
-          value={f.date}
-          onChange={set('date')}
-          onKeyDown={onKeyDown}
-          className={INPUT}
-        />
+      <td className="px-4 py-1.5" style={{ width: 148 }}>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                'h-7 px-2 w-full justify-start text-xs font-normal',
+                !f.date && 'text-muted-foreground'
+              )}
+            >
+              <CalendarIcon className="mr-1.5 h-3 w-3 opacity-50 shrink-0" />
+              {f.date ? format(parseISO(f.date), 'dd/MM/yyyy') : 'Data'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={f.date ? parseISO(f.date) : undefined}
+              onSelect={(date) => date && setF((p) => ({ ...p, date: format(date, 'yyyy-MM-dd') }))}
+              locale={ptBR}
+            />
+          </PopoverContent>
+        </Popover>
       </td>
       <td className="px-4 py-1.5">
         <input
@@ -568,15 +589,30 @@ function QuickAddRow({
 
   return (
     <tr className="border-t-2 border-primary/30 bg-primary/5">
-      <td className="px-4 py-2" style={{ width: 120 }}>
-        <input
-          type="date"
-          value={f.date}
-          onChange={set('date')}
-          onKeyDown={onKeyDown}
-          className={INPUT}
-          title="Data"
-        />
+      <td className="px-4 py-2" style={{ width: 148 }}>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                'h-7 px-2 w-full justify-start text-xs font-normal',
+                !f.date && 'text-muted-foreground'
+              )}
+            >
+              <CalendarIcon className="mr-1.5 h-3 w-3 opacity-50 shrink-0" />
+              {f.date ? format(parseISO(f.date), 'dd/MM/yyyy') : 'Data'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={f.date ? parseISO(f.date) : undefined}
+              onSelect={(date) => date && setF((p) => ({ ...p, date: format(date, 'yyyy-MM-dd') }))}
+              locale={ptBR}
+            />
+          </PopoverContent>
+        </Popover>
       </td>
       <td className="px-4 py-2">
         <input
@@ -602,22 +638,24 @@ function QuickAddRow({
           className={cn(INPUT, 'text-right')}
         />
       </td>
-      <td className="px-3 py-2" style={{ width: 60 }}>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="default"
-            size="icon"
-            onClick={submit}
-            className="h-6 w-6"
-            title="Adicionar (Enter)"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </Button>
+      <td className="pl-2 pr-4 py-2" style={{ width: 64 }}>
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 flex items-center justify-center">
+            <Button
+              variant="default"
+              size="icon"
+              onClick={submit}
+              className="h-6 w-6"
+              title="Adicionar (Enter)"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-6 w-6"
+            className="h-7 w-7 rounded hover:bg-muted/30 hover:text-foreground mr-3"
             title="Fechar (Esc)"
           >
             <X className="h-3.5 w-3.5" />
@@ -766,10 +804,10 @@ function DetailTab({
                 <div className="border-t border-border">
                   <table className="w-full text-sm table-fixed">
                     <colgroup>
-                      <col style={{ width: 120 }} />
+                      <col style={{ width: 148 }} />
                       <col />
                       <col style={{ width: 130 }} />
-                      <col style={{ width: 60 }} />
+                      <col style={{ width: 74 }} />
                     </colgroup>
                     <thead>
                       <tr className="bg-muted/30">
@@ -855,17 +893,15 @@ function DetailTab({
                         />
                       )}
                       {!isReadOnly && !showAdd && (
-                        <tr className="border-t border-border/50">
-                          <td colSpan={4} className="px-4 py-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openQuickAdd(name)}
-                              className="h-7 text-xs text-muted-foreground hover:text-foreground px-0"
-                            >
+                        <tr
+                          className="border-t border-border/50 cursor-pointer hover:bg-muted/30 transition-colors"
+                          onClick={() => openQuickAdd(name)}
+                        >
+                          <td colSpan={4} className="px-4 py-1.5">
+                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                               <Plus className="h-3.5 w-3.5" />
                               Novo lançamento
-                            </Button>
+                            </span>
                           </td>
                         </tr>
                       )}

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Key, Moon, Sun } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTheme } from '@/lib/theme'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,9 +31,7 @@ export function SettingsPage() {
   const [hasKey, setHasKey] = useState(false)
   const [savingAi, setSavingAi] = useState(false)
   const apiKeyRef = useRef<HTMLInputElement>(null)
-  const [darkMode, setDarkMode] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  )
+  const { dark: darkMode, toggle: toggleDarkMode } = useTheme()
 
   const apiKeyPlaceholder: Record<string, string> = {
     openai: 'sk-...',
@@ -73,12 +72,6 @@ export function SettingsPage() {
   function saveProfile(e: React.FormEvent) {
     e.preventDefault()
     toast.success('Perfil atualizado')
-  }
-
-  function toggleDark(checked: boolean) {
-    setDarkMode(checked)
-    document.documentElement.classList.toggle('dark', checked)
-    localStorage.setItem('theme', checked ? 'dark' : 'light')
   }
 
   return (
@@ -201,7 +194,7 @@ export function SettingsPage() {
               </p>
             </div>
             <button
-              onClick={() => toggleDark(!darkMode)}
+              onClick={toggleDarkMode}
               className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-background text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}

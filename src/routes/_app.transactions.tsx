@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Search,
   CheckCircle2,
@@ -10,14 +10,20 @@ import {
   Pencil,
   Trash2,
   Loader2,
+  ChevronDown,
+  Check,
+  CalendarIcon,
 } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { Calendar } from '@/components/ui/calendar'
 import type { Transaction, Category, CursorPage, DashboardSummary } from '@/types'
-import { CategoryBadge } from '@/components/ui/category-badge'
+import { CategoryBadge, CATEGORY_COLORS, type CategoryKey } from '@/components/ui/category-badge'
 import { Currency } from '@/components/ui/currency'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useTransactions, type TxInput } from '@/lib/transactions-store'
-import { apiGet } from '@/lib/api'
+import { apiGet, apiPost } from '@/lib/api'
 import { useMonth } from '@/lib/month-context'
 import { useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import { Button } from '@/components/ui/button'
@@ -31,8 +37,282 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export const Route = createFileRoute('/_app/transactions')({ component: TransactionsPage })
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const PALETTE = [
+  '#2D7D46',
+  '#16A34A',
+  '#C2410C',
+  '#D97706',
+  '#1D4ED8',
+  '#2563EB',
+  '#7C3AED',
+  '#9333EA',
+  '#0891B2',
+  '#0D9488',
+  '#DB2777',
+  '#EC4899',
+  '#64748B',
+  '#374151',
+  '#1E3A5F',
+  '#DC2626',
+]
+
+function resolvedCatColor(cat: Category): string {
+  return cat.color ?? CATEGORY_COLORS[cat.name as CategoryKey]?.hex ?? '#64748B'
+}
+
+// ── Category combobox with inline creation ────────────────────────────────────
+
+function CategoryCombobox({
+  value,
+  onChange,
+  categories,
+  transactionType,
+}: {
+  value: string
+  onChange: (id: string) => void
+  categories: Category[]
+  transactionType: 'income' | 'expense'
+}) {
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [newCat, setNewCat] = useState<{
+    name: string
+    color: string
+    type: 'income' | 'expense' | 'both'
+  }>({
+    name: '',
+    color: PALETTE[0],
+    type: transactionType,
+  })
+  const [saving, setSaving] = useState(false)
+  const [localCreated, setLocalCreated] = useState<Category[]>([])
+
+  const allCategories = [
+    ...categories,
+    ...localCreated.filter((lc) => !categories.find((c) => c.id === lc.id)),
+  ]
+
+  const filtered = allCategories
+    .filter((c) => c.type === transactionType || c.type === 'both')
+    .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+
+  const selected = allCategories.find((c) => c.id === value)
+
+  function openCreate() {
+    setNewCat({ name: search, color: PALETTE[0], type: transactionType })
+    setCreating(true)
+  }
+
+  async function handleCreate() {
+    if (!newCat.name.trim()) {
+      toast.error('Informe um nome.')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await apiPost<{ data: Category }>('/api/categories', {
+        name: newCat.name.trim(),
+        color: newCat.color,
+        type: newCat.type,
+      })
+      setLocalCreated((prev) => [...prev, res.data])
+      onChange(res.data.id)
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      setCreating(false)
+      setOpen(false)
+      setSearch('')
+      toast.success('Categoria criada')
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao criar categoria')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v)
+        if (!v) {
+          setCreating(false)
+          setSearch('')
+        }
+      }}
+    >
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between h-9 px-3 text-sm font-normal"
+        >
+          {selected ? (
+            <span className="flex items-center gap-2 min-w-0">
+              <span
+                className="w-3 h-3 rounded-full shrink-0"
+                style={{ background: resolvedCatColor(selected) }}
+              />
+              <span className="truncate">{selected.name}</span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">Sem categoria</span>
+          )}
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="p-0"
+        align="start"
+        style={{ width: 'var(--radix-popover-trigger-width)' }}
+      >
+        {creating ? (
+          <div className="p-3 space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Nova categoria
+            </p>
+            <Input
+              value={newCat.name}
+              onChange={(e) => setNewCat((p) => ({ ...p, name: e.target.value }))}
+              placeholder="Ex: Academia"
+              className="h-8 text-sm"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleCreate()
+                }
+                if (e.key === 'Escape') setCreating(false)
+              }}
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {PALETTE.map((hex) => (
+                <button
+                  key={hex}
+                  type="button"
+                  onClick={() => setNewCat((p) => ({ ...p, color: hex }))}
+                  className={cn(
+                    'w-6 h-6 rounded-full border-2 transition-transform hover:scale-110',
+                    newCat.color === hex ? 'border-foreground scale-110' : 'border-transparent'
+                  )}
+                  style={{ background: hex }}
+                />
+              ))}
+            </div>
+            <Select
+              value={newCat.type}
+              onValueChange={(v) => setNewCat((p) => ({ ...p, type: v as typeof newCat.type }))}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="expense">Despesa</SelectItem>
+                <SelectItem value="income">Receita</SelectItem>
+                <SelectItem value="both">Ambos</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setCreating(false)}
+              >
+                Voltar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                className="flex-1"
+                onClick={handleCreate}
+                disabled={saving}
+              >
+                {saving && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                Criar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="p-2 border-b">
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar categoria…"
+                className="h-7 text-xs"
+              />
+            </div>
+            <div className="max-h-52 overflow-y-auto py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange('')
+                  setOpen(false)
+                  setSearch('')
+                }}
+                className={cn(
+                  'w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2',
+                  !value && 'bg-muted/50'
+                )}
+              >
+                <span className="w-3 h-3 rounded-full bg-muted-foreground/30 shrink-0" />
+                <span className="text-muted-foreground">Sem categoria</span>
+                {!value && <Check className="h-3.5 w-3.5 ml-auto text-primary shrink-0" />}
+              </button>
+              {filtered.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(cat.id)
+                    setOpen(false)
+                    setSearch('')
+                  }}
+                  className={cn(
+                    'w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2',
+                    value === cat.id && 'bg-muted/50'
+                  )}
+                >
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ background: resolvedCatColor(cat) }}
+                  />
+                  <span className="flex-1 truncate">{cat.name}</span>
+                  {value === cat.id && (
+                    <Check className="h-3.5 w-3.5 ml-auto text-primary shrink-0" />
+                  )}
+                </button>
+              ))}
+              {filtered.length === 0 && (
+                <p className="px-3 py-2 text-xs text-muted-foreground">Nenhuma encontrada.</p>
+              )}
+            </div>
+            <div className="border-t p-1">
+              <button
+                type="button"
+                onClick={openCreate}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2 text-primary font-medium rounded"
+              >
+                <Plus className="h-3.5 w-3.5 shrink-0" />
+                Nova categoria
+              </button>
+            </div>
+          </>
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 // ── Modal ────────────────────────────────────────────────────────────────────
 
@@ -134,13 +414,34 @@ function TransactionModal({
           </div>
 
           <div>
-            <Label
-              htmlFor="tx-date"
-              className="text-xs font-medium text-muted-foreground mb-1.5 block"
-            >
-              Data
-            </Label>
-            <Input id="tx-date" type="date" value={form.date} onChange={set('date')} required />
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Data</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    'w-full justify-start text-left font-normal h-9',
+                    !form.date && 'text-muted-foreground'
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                  {form.date
+                    ? format(parseISO(form.date), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+                    : 'Selecionar data'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={form.date ? parseISO(form.date) : undefined}
+                  onSelect={(date) => {
+                    if (date) setForm((prev) => ({ ...prev, date: format(date, 'yyyy-MM-dd') }))
+                  }}
+                  locale={ptBR}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div>
@@ -183,26 +484,12 @@ function TransactionModal({
               <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Categoria
               </Label>
-              <Select
-                value={form.category_id || '__none__'}
-                onValueChange={(v) =>
-                  setForm((prev) => ({ ...prev, category_id: v === '__none__' ? '' : v }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sem categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">Sem categoria</SelectItem>
-                  {categories
-                    .filter((c) => c.type === form.type || c.type === 'both')
-                    .map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <CategoryCombobox
+                value={form.category_id}
+                onChange={(id) => setForm((prev) => ({ ...prev, category_id: id }))}
+                categories={categories}
+                transactionType={form.type}
+              />
             </div>
           </div>
 
@@ -470,7 +757,8 @@ export function TransactionsPage() {
             </thead>
             <tbody>
               {transactions.map((tx) => {
-                const catName = tx.category?.name ?? tx.ai_category?.name ?? 'Sem categoria'
+                const cat = tx.category ?? tx.ai_category
+                const catName = cat?.name ?? 'Sem categoria'
                 const signedAmount =
                   tx.type === 'income' ? parseFloat(tx.amount) : -parseFloat(tx.amount)
                 return (
@@ -518,6 +806,7 @@ export function TransactionsPage() {
                         >
                           <CategoryBadge
                             category={catName}
+                            color={cat?.color}
                             confidence={tx.ai_confidence ?? undefined}
                             size="sm"
                           />

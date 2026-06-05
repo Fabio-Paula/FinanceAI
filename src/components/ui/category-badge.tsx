@@ -1,6 +1,13 @@
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type CategoryKey =
@@ -123,6 +130,8 @@ export interface CategoryBadgeProps {
   size?: 'sm' | 'md'
   /** Extra className */
   className?: string
+  /** Hex color from DB (overrides theme map) */
+  color?: string | null
 }
 
 export function CategoryBadge({
@@ -130,11 +139,25 @@ export function CategoryBadge({
   confidence,
   size = 'md',
   className,
+  color,
 }: CategoryBadgeProps) {
-  const colors = CATEGORY_COLORS[category as CategoryKey] ?? CATEGORY_COLORS.Outros
+  const themeColors = CATEGORY_COLORS[category as CategoryKey] ?? CATEGORY_COLORS.Outros
 
   const showWarning = confidence !== undefined && confidence < 0.75
   const showCheck = confidence !== undefined && confidence >= 0.95
+
+  const hexColor = color && /^#[0-9A-Fa-f]{6}$/.test(color) ? color : null
+  const style = hexColor
+    ? {
+        backgroundColor: hexToRgba(hexColor, 0.12),
+        color: hexColor,
+        borderColor: hexToRgba(hexColor, 0.3),
+      }
+    : {
+        backgroundColor: themeColors.bg,
+        color: themeColors.fg,
+        borderColor: `color-mix(in srgb, ${themeColors.fg} 20%, transparent)`,
+      }
 
   return (
     <div
@@ -144,11 +167,7 @@ export function CategoryBadge({
         size === 'sm' ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm',
         className
       )}
-      style={{
-        backgroundColor: colors.bg,
-        color: colors.fg,
-        borderColor: `color-mix(in srgb, ${colors.fg} 20%, transparent)`,
-      }}
+      style={style}
     >
       {showWarning && (
         <AlertTriangle
